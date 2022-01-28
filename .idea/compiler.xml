@@ -6,7 +6,6 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="dubbo-samples-zookeeper" />
         <module name="dubbo-test-spring3" />
         <module name="dubbo-remoting-netty4" />
         <module name="dubbo-remoting-grizzly" />
@@ -16,84 +15,89 @@
         <module name="dubbo-test-benchmark" />
         <module name="dubbo-monitor-default" />
         <module name="dubbo-rpc-redis" />
-        <module name="dubbo-samples-echo-java-client" />
         <module name="dubbo-registry-multicast" />
-        <module name="dubbo-samples-echo-annotation-client" />
-        <module name="dubbo-samples-multi-registry" />
-        <module name="dubbo-samples-rest" />
-        <module name="dubbo-samples-api" />
-        <module name="dubbo-samples-annotation" />
         <module name="dubbo-remoting-http" />
         <module name="dubbo-rpc-api" />
-        <module name="dubbo-samples-group" />
         <module name="dubbo-serialization-kryo" />
-        <module name="dubbo-samples-switch-serialization-thread" />
         <module name="dubbo-test-examples" />
         <module name="dubbo-filter-validation" />
-        <module name="dubbo-samples-echo-client" />
-        <module name="dubbo-samples-direct" />
-        <module name="dubbo-samples-echo-annotation-server" />
-        <module name="dubbo-samples-validation" />
         <module name="dubbo-registry-api" />
         <module name="dubbo-rpc-webservice" />
-        <module name="dubbo-samples-scala" />
-        <module name="dubbo-samples-version" />
-        <module name="dubbo-samples-mock" />
         <module name="dubbo-rpc-rmi" />
-        <module name="dubbo-samples-callback" />
         <module name="dubbo-registry-nacos" />
         <module name="dubbo-registry-default" />
-        <module name="dubbo-samples-echo-api" />
-        <module name="dubbo-samples-context" />
         <module name="dubbo-config-api" />
-        <module name="dubbo-samples-http" />
         <module name="dubbo-serialization-hessian2" />
         <module name="dubbo-rpc-rest" />
-        <module name="dubbo-samples-echo-java-server" />
         <module name="dubbo-registry-zookeeper" />
         <module name="dubbo-container-log4j" />
         <module name="dubbo-serialization-fst" />
         <module name="dubbo-container-logback" />
-        <module name="dubbo-samples-basic" />
         <module name="dubbo-registry-redis" />
         <module name="dubbo-test-integration" />
         <module name="dubbo-remoting-p2p" />
         <module name="dubbo" />
-        <module name="dubbo-samples-attachment" />
         <module name="dubbo-serialization-api" />
         <module name="dubbo-rpc-thrift" />
-        <module name="dubbo-samples-spring-boot-hystrix" />
         <module name="dubbo-remoting-mina" />
         <module name="dubbo-monitor-api" />
         <module name="dubbo-rpc-dubbo" />
         <module name="dubbo-rpc-http" />
         <module name="dubbo-rpc-memcached" />
-        <module name="dubbo-samples-docker" />
         <module name="dubbo-config-spring" />
         <module name="dubbo-container-api" />
-        <module name="dubbo-samples-cache" />
         <module name="dubbo-samples-jetty" />
         <module name="dubbo-filter-cache" />
-        <module name="dubbo-samples-notify" />
         <module name="dubbo-serialization-jdk" />
-        <module name="dubbo-samples-spring-hystrix" />
         <module name="dubbo-remoting-api" />
-        <module name="dubbo-samples-merge" />
         <module name="dubbo-container-spring" />
         <module name="dubbo-demo-provider" />
         <module name="dubbo-cluster" />
-        <module name="dubbo-samples-monitor" />
         <module name="dubbo-demo-api" />
         <module name="dubbo-qos" />
-        <module name="dubbo-samples-stub" />
         <module name="dubbo-demo-consumer" />
-        <module name="dubbo-samples-generic" />
         <module name="dubbo-serialization-fastjson" />
         <module name="dubbo-remoting-zookeeper" />
-        <module name="dubbo-samples-echo-server" />
-        <module name="dubbo-samples-async" />
         <module name="dubbo-rpc-injvm" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="dubbo-samples-all" target="1.8" />
+      <module name="dubbo-samples-annotation" target="1.8" />
+      <module name="dubbo-samples-api" target="1.8" />
+      <module name="dubbo-samples-async" target="1.8" />
+      <module name="dubbo-samples-attachment" target="1.8" />
+      <module name="dubbo-samples-basic" target="1.8" />
+      <module name="dubbo-samples-cache" target="1.8" />
+      <module name="dubbo-samples-callback" target="1.8" />
+      <module name="dubbo-samples-context" target="1.8" />
+      <module name="dubbo-samples-direct" target="1.8" />
+      <module name="dubbo-samples-docker" target="1.8" />
+      <module name="dubbo-samples-echo" target="1.8" />
+      <module name="dubbo-samples-echo-annotation-client" target="1.8" />
+      <module name="dubbo-samples-echo-annotation-server" target="1.8" />
+      <module name="dubbo-samples-echo-api" target="1.8" />
+      <module name="dubbo-samples-echo-client" target="1.8" />
+      <module name="dubbo-samples-echo-java-client" target="1.8" />
+      <module name="dubbo-samples-echo-java-server" target="1.8" />
+      <module name="dubbo-samples-echo-server" target="1.8" />
+      <module name="dubbo-samples-generic" target="1.8" />
+      <module name="dubbo-samples-group" target="1.8" />
+      <module name="dubbo-samples-http" target="1.8" />
+      <module name="dubbo-samples-merge" target="1.8" />
+      <module name="dubbo-samples-mock" target="1.8" />
+      <module name="dubbo-samples-monitor" target="1.8" />
+      <module name="dubbo-samples-multi-registry" target="1.8" />
+      <module name="dubbo-samples-notify" target="1.8" />
+      <module name="dubbo-samples-rest" target="1.8" />
+      <module name="dubbo-samples-scala" target="1.8" />
+      <module name="dubbo-samples-spring-boot-hystrix" target="1.8" />
+      <module name="dubbo-samples-spring-hystrix" target="1.8" />
+      <module name="dubbo-samples-stub" target="1.8" />
+      <module name="dubbo-samples-switch-serialization-thread" target="1.8" />
+      <module name="dubbo-samples-validation" target="1.8" />
+      <module name="dubbo-samples-version" target="1.8" />
+      <module name="dubbo-samples-zookeeper" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

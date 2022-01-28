@@ -10,6 +10,7 @@
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/dubbo-samples-master/pom.xml" />
         <option value="$PROJECT_DIR$/dubbo-samples-master/dubbo-samples-jetty/pom.xml" />
+        <option value="$PROJECT_DIR$/dubbo-samples-all/dubbo-samples-jetty/pom.xml" />
       </list>
     </option>
   </component>
