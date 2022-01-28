@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
-    <file type="web" url="file://$PROJECT_DIR$/dubbo-samples-master/dubbo-samples-rest" />
+    <file type="web" url="file://$PROJECT_DIR$/dubbo-samples-all/dubbo-samples-rest" />
   </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">

@@ -110,10 +110,10 @@
     <file url="file://$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-webservice/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dubbo-rpc/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dubbo-rpc/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/dubbo-samples-master/dubbo-samples-docker/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/dubbo-samples-master/dubbo-samples-docker/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/dubbo-samples-master/dubbo-samples-jetty/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/dubbo-samples-master/dubbo-samples-jetty/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dubbo-samples-all/dubbo-samples-docker/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dubbo-samples-all/dubbo-samples-docker/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dubbo-samples-all/dubbo-samples-jetty/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dubbo-samples-all/dubbo-samples-jetty/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dubbo-serialization/dubbo-serialization-api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dubbo-serialization/dubbo-serialization-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/dubbo-serialization/dubbo-serialization-fastjson/src/main/java" charset="UTF-8" />
