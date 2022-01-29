@@ -18,12 +18,16 @@ package com.alibaba.dubbo.common.extension;
 
 /**
  * ExtensionFactory
+ *
+ * 获取扩展点实例。
  */
 @SPI
 public interface ExtensionFactory {
 
     /**
      * Get extension.
+     *
+     * 工厂模式。
      *
      * @param type object type.
      * @param name object name.

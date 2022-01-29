@@ -24,7 +24,7 @@ import com.alibaba.dubbo.common.extension.ExtensionLoader;
 /**
  * AdaptiveCompiler. (SPI, Singleton, ThreadSafe)
  */
-@Adaptive
+@Adaptive  // 有自适应注解，说明AdaptiveCompiler为固定实现，为了管理其它Compiler
 public class AdaptiveCompiler implements Compiler {
 
     private static volatile String DEFAULT_COMPILER;

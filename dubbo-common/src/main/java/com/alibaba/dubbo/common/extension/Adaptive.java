@@ -18,17 +18,19 @@ package com.alibaba.dubbo.common.extension;
 
 import com.alibaba.dubbo.common.URL;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Provide helpful information for {@link ExtensionLoader} to inject dependency extension instance.
  *
  * @see ExtensionLoader
- * @see URL
+ * @see URL    Adaptive注解动态地通过URL中的参数来确定要使用哪个具体的实现类。
+ *
+ * 扩展点自适应。
+ *
+ * 标注在方法上：可以通过参数动态获取实现类。
+ * 标注在类上：作为接口的默认实现。如果同一个接口类型有多个类都标注了，将抛出异常。
+ *      用在类上，固定了接口的实现，避免了动态匹配的代码生成
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -54,6 +56,10 @@ public @interface Adaptive {
      * <code>String[] {"yyy.invoker.wrapper"}</code>. This name will be used to search for parameter from URL.
      *
      * @return parameter key names in URL
+     *
+     * 可以传入多个参数，会按照参数顺序依次匹配，任意一个匹配成功就返回其对应的实例。
+     *
+     * 如果没有找到，使用SPI接口中值进行匹配。若还是未找到，将抛出异常。
      */
     String[] value() default {};
 

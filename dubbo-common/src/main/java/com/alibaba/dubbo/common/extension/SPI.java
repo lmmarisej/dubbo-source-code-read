@@ -50,6 +50,12 @@ import java.lang.annotation.Target;
  * Fails to load Extension("mina"). When user configure to use mina, dubbo will complain the extension cannot be loaded,
  * instead of reporting which extract extension implementation fails and the extract reason.
  * </p>
+ *
+ * 标记接口是一个dubbo扩展点，需要在运行时通过配置找到具体的实现类。
+ * <p>
+ * 解决Java SPI吞异常的缺陷、避免一次加载实例化所有的实现、兼容Java SPI的配置路径和内容配置方式。
+ *
+ * 在dubbo启动的时候，会扫描META-INF/dubbo、META-INF/dubbo/internal、META-INF/services路径下配置。
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -58,6 +64,8 @@ public @interface SPI {
 
     /**
      * default extension name
+     *
+     * 根据这个属性配置被注解的接口的实现类，如果未填写将被注解的接口名进行驼峰拆分，使用.分割以此作为默认实现类的名称
      */
     String value() default "";
 

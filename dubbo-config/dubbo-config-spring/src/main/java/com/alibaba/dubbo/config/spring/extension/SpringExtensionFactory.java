@@ -34,14 +34,18 @@ import java.util.Set;
 
 /**
  * SpringExtensionFactory
+ *
+ * 支持第三方 IoC 容器，实现以从Spring中获取扩展点实例。
  */
 public class SpringExtensionFactory implements ExtensionFactory {
     private static final Logger logger = LoggerFactory.getLogger(SpringExtensionFactory.class);
 
+    // 存储Spring的应用上下文
     private static final Set<ApplicationContext> contexts = new ConcurrentHashSet<ApplicationContext>();
 
     private static final ApplicationListener shutdownHookListener = new ShutdownHookListener();
 
+    // 在服务被发布时，保存Spring应用上下文
     public static void addApplicationContext(ApplicationContext context) {
         contexts.add(context);
         BeanFactoryUtils.addApplicationListener(context, shutdownHookListener);
@@ -60,13 +64,15 @@ public class SpringExtensionFactory implements ExtensionFactory {
         contexts.clear();
     }
 
+    // 根据接口类型，从Spring容器中找扩展点实现
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getExtension(Class<T> type, String name) {
+        // 与Spring相关联，先从Spring容器中获取
         for (ApplicationContext context : contexts) {
             if (context.containsBean(name)) {
-                Object bean = context.getBean(name);
-                if (type.isInstance(bean)) {
+                Object bean = context.getBean(name);        // 名字获取
+                if (type.isInstance(bean)) {        // 类型验证
                     return (T) bean;
                 }
             }

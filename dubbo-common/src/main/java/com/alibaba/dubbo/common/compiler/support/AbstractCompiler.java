@@ -34,22 +34,25 @@ public abstract class AbstractCompiler implements Compiler {
     @Override
     public Class<?> compile(String code, ClassLoader classLoader) {
         code = code.trim();
+        // 包名匹配
         Matcher matcher = PACKAGE_PATTERN.matcher(code);
         String pkg;
         if (matcher.find()) {
-            pkg = matcher.group(1);
+            pkg = matcher.group(1);     // 包路径
         } else {
             pkg = "";
         }
         matcher = CLASS_PATTERN.matcher(code);
         String cls;
         if (matcher.find()) {
-            cls = matcher.group(1);
+            cls = matcher.group(1);     // 类名
         } else {
             throw new IllegalArgumentException("No such class name in " + code);
         }
+        // 拼接出全限类名
         String className = pkg != null && pkg.length() > 0 ? pkg + "." + cls : cls;
         try {
+            // 先尝试加载，防止重复编译
             return Class.forName(className, true, ClassHelper.getCallerClassLoader(getClass()));
         } catch (ClassNotFoundException e) {
             if (!code.endsWith("}")) {

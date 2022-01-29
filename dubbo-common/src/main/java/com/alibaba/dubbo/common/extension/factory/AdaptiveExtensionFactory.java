@@ -26,6 +26,10 @@ import java.util.List;
 
 /**
  * AdaptiveExtensionFactory
+ *
+ * adaptive=com.alibaba.dubbo.common.extension.factory.AdaptiveExtensionFactory
+ *
+ * 持有所有的具体工厂的实现。
  */
 @Adaptive
 public class AdaptiveExtensionFactory implements ExtensionFactory {
@@ -33,6 +37,7 @@ public class AdaptiveExtensionFactory implements ExtensionFactory {
     private final List<ExtensionFactory> factories;
 
     public AdaptiveExtensionFactory() {
+        // 获取所有类的扩展工厂并缓存
         ExtensionLoader<ExtensionFactory> loader = ExtensionLoader.getExtensionLoader(ExtensionFactory.class);
         List<ExtensionFactory> list = new ArrayList<ExtensionFactory>();
         for (String name : loader.getSupportedExtensions()) {
@@ -41,6 +46,7 @@ public class AdaptiveExtensionFactory implements ExtensionFactory {
         factories = Collections.unmodifiableList(list);
     }
 
+    // 只是一个代理者，最终调用Spi工厂或Spring工厂来获取指定的接口实例
     @Override
     public <T> T getExtension(Class<T> type, String name) {
         for (ExtensionFactory factory : factories) {

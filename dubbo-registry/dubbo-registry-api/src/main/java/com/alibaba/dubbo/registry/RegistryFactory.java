@@ -25,7 +25,7 @@ import com.alibaba.dubbo.common.extension.SPI;
  *
  * @see com.alibaba.dubbo.registry.support.AbstractRegistryFactory
  */
-@SPI("dubbo")
+@SPI("dubbo")       // 从cl下加载key为dubbo的所有RegistryFactory接口的实现，实现的获取方式为ExtensionLoader
 public interface RegistryFactory {
 
     /**
@@ -41,6 +41,8 @@ public interface RegistryFactory {
      *
      * @param url Registry address, is not allowed to be empty
      * @return Registry reference, never return empty value
+     *
+     * @ Adaptive({"protocol"}) 是为了动态查找注册中心的实现。
      */
     @Adaptive({"protocol"})     // 从url url.protocol=xxx 中取value，根据value从RegistryFactory返回对应实现类的Registry实例
     Registry getRegistry(URL url);

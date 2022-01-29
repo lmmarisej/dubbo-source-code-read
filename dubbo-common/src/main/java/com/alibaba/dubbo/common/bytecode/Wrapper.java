@@ -34,6 +34,8 @@ import java.util.regex.Matcher;
 
 /**
  * Wrapper.
+ *
+ * 对通用的逻辑进行封装，或对子类进行增强。
  */
 public abstract class Wrapper {
     private static final Map<Class<?>, Wrapper> WRAPPER_MAP = new ConcurrentHashMap<Class<?>, Wrapper>(); //class wrapper map

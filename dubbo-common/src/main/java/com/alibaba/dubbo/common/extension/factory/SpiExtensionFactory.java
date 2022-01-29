@@ -22,12 +22,15 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 /**
  * SpiExtensionFactory
+ *
+ * spi=com.alibaba.dubbo.common.extension.factory.SpiExtensionFactory
  */
 public class SpiExtensionFactory implements ExtensionFactory {
 
     @Override
     public <T> T getExtension(Class<T> type, String name) {
         if (type.isInterface() && type.isAnnotationPresent(SPI.class)) {
+            // 从程序外部配置获取被SPI注解的接口的实现
             ExtensionLoader<T> loader = ExtensionLoader.getExtensionLoader(type);
             if (!loader.getSupportedExtensions().isEmpty()) {
                 return loader.getAdaptiveExtension();
