@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class EchoConsumer {
 
-    @Reference
+    @Reference      // 将从注册中心获得的生产者中获取该接口的实现
     private EchoService echoService;
 
     public String echo(String name) {

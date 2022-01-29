@@ -10,7 +10,7 @@ import java.util.Date;
 /**
  * @author yiji@apache.org
  */
-@Service
+@Service        // 将当前类暴露为dubbo服务
 public class EchoServiceImpl implements EchoService {
 
     public String echo(String message) {

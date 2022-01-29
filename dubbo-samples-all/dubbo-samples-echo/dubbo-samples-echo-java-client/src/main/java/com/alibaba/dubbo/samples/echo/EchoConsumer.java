@@ -14,7 +14,7 @@ public class EchoConsumer {
         // #1 设置消费方应用名称
         reference.setApplication(new ApplicationConfig("java-echo-consumer"));
         // #2 设置注册中心地址和协议
-        reference.setRegistry(new RegistryConfig("zookeeper://127.0.0.1:2181"));
+        reference.setRegistry(new RegistryConfig("zookeeper://127.0.0.1:2181"));    // 从注册中心中取得provider
         // #3 指定要消费的服务接口
         reference.setInterface(EchoService.class);
         // #4 创建远程连接并做动态代理转换

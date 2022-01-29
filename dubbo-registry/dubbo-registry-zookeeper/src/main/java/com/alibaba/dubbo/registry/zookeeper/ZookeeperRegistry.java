@@ -126,12 +126,17 @@ public class ZookeeperRegistry extends FailbackRegistry {
         }
     }
 
+    /**
+     * zookeeper全量订阅。
+     */
     @Override
     protected void doSubscribe(final URL url, final NotifyListener listener) {
         try {
+            // 订阅所有数据
             if (Constants.ANY_VALUE.equals(url.getServiceInterface())) {
                 String root = toRootPath();
                 ConcurrentMap<NotifyListener, ChildListener> listeners = zkListeners.get(url);
+                // 没有缓存
                 if (listeners == null) {
                     zkListeners.putIfAbsent(url, new ConcurrentHashMap<NotifyListener, ChildListener>());
                     listeners = zkListeners.get(url);
@@ -139,55 +144,64 @@ public class ZookeeperRegistry extends FailbackRegistry {
                 ChildListener zkListener = listeners.get(listener);
                 if (zkListener == null) {
                     listeners.putIfAbsent(listener, new ChildListener() {
+                        // 变更通知
                         @Override
-                        public void childChanged(String parentPath, List<String> currentChilds) {
+                        public void childChanged(String parentPath, List<String> currentChilds) {       // 子节点变化时触发
                             for (String child : currentChilds) {
                                 child = URL.decode(child);
-                                if (!anyServices.contains(child)) {
-                                    anyServices.add(child);
+                                if (!anyServices.contains(child)) {     // 诶，我这里没有记录，你是新来的吧
+                                    anyServices.add(child);     // 新来的记下来
                                     subscribe(url.setPath(child).addParameters(Constants.INTERFACE_KEY, child,
                                             Constants.CHECK_KEY, String.valueOf(false)), listener);
                                 }
                             }
                         }
                     });
+                    // 可能未放成功，保证线程栈上的变量和堆中对象数据一致
                     zkListener = listeners.get(listener);
                 }
+                // 创建持久节点，接下来订阅持久节点的直接子节点
                 zkClient.create(root, false);
-                List<String> services = zkClient.addChildListener(root, zkListener);
+                // 增加当前节点的订阅，返回该节点下所有子节点列表
+                List<String> services = zkClient.addChildListener(root, zkListener);        // 子节点，你也用这个事件处理器吧
                 if (services != null && !services.isEmpty()) {
-                    for (String service : services) {
+                    for (String service : services) {       // 遍历所有子节点进行订阅
                         service = URL.decode(service);
                         anyServices.add(service);
                         subscribe(url.setPath(service).addParameters(Constants.INTERFACE_KEY, service,
                                 Constants.CHECK_KEY, String.valueOf(false)), listener);
                     }
                 }
-            } else {
+            }
+            // 根据url的类型，获取一组要订阅的路径
+            else {
                 List<URL> urls = new ArrayList<URL>();
                 for (String path : toCategoriesPath(url)) {
                     ConcurrentMap<NotifyListener, ChildListener> listeners = zkListeners.get(url);
+                    // 事件缓存为空则创建缓存
                     if (listeners == null) {
                         zkListeners.putIfAbsent(url, new ConcurrentHashMap<NotifyListener, ChildListener>());
                         listeners = zkListeners.get(url);
                     }
                     ChildListener zkListener = listeners.get(listener);
-                    if (zkListener == null) {
+                    if (zkListener == null) {       // 该事件未缓存
+                        // 创建事件并缓存
                         listeners.putIfAbsent(listener, new ChildListener() {
                             @Override
                             public void childChanged(String parentPath, List<String> currentChilds) {
                                 ZookeeperRegistry.this.notify(url, listener, toUrlsWithEmpty(url, parentPath, currentChilds));
                             }
                         });
-                        zkListener = listeners.get(listener);
+                        zkListener = listeners.get(listener);       // 保证一致性
                     }
                     zkClient.create(path, false);
+                    // 订阅该节点，并返回指定路径下子节点
                     List<String> children = zkClient.addChildListener(path, zkListener);
                     if (children != null) {
                         urls.addAll(toUrlsWithEmpty(url, path, children));
                     }
                 }
-                notify(url, listener, urls);
+                notify(url, listener, urls);        // 回调监听器，更新本地缓存信息
             }
         } catch (Throwable e) {
             throw new RpcException("Failed to subscribe " + url + " to zookeeper " + getUrl() + ", cause: " + e.getMessage(), e);

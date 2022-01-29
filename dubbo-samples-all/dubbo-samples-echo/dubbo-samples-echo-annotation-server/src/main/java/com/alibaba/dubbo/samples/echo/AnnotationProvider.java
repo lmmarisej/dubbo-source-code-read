@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 public class AnnotationProvider {
     public static void main(String[] args) throws Exception {
+        // 给注解型容器指定一个使用Spring注解配置类
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ProviderConfiguration.class);
         context.start();
         System.in.read();
@@ -26,6 +27,7 @@ public class AnnotationProvider {
             return new ProviderConfig();
         }
 
+        // 当前服务者元信息
         @Bean
         public ApplicationConfig applicationConfig() {
             ApplicationConfig applicationConfig = new ApplicationConfig();
@@ -33,6 +35,7 @@ public class AnnotationProvider {
             return applicationConfig;
         }
 
+        // 注册中心信息
         @Bean
         public RegistryConfig registryConfig() {
             RegistryConfig registryConfig = new RegistryConfig();
@@ -43,6 +46,7 @@ public class AnnotationProvider {
             return registryConfig;
         }
 
+        // dubbo协议配置
         @Bean
         public ProtocolConfig protocolConfig() {
             ProtocolConfig protocolConfig = new ProtocolConfig();

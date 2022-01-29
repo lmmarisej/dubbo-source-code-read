@@ -42,7 +42,7 @@ public interface RegistryFactory {
      * @param url Registry address, is not allowed to be empty
      * @return Registry reference, never return empty value
      */
-    @Adaptive({"protocol"})
+    @Adaptive({"protocol"})     // 从url url.protocol=xxx 中取value，根据value从RegistryFactory返回对应实现类的Registry实例
     Registry getRegistry(URL url);
 
 }

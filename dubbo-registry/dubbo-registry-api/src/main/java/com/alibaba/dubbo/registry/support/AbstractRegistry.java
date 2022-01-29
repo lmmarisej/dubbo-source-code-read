@@ -62,7 +62,10 @@ public abstract class AbstractRegistry implements Registry {
     // Log output
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     // Local disk cache, where the special key value.registies records the list of registry centers, and the others are the list of notified service providers
-    private final Properties properties = new Properties();
+    // 缓存的数据结构为properties
+    // key：URL#serviceKey()
+    // value：提供者列表、路由规则列表、配置规则列表等，多个使用空格分离
+    private final Properties properties = new Properties();     // 如果注册中心宕机，dubbo将使用本地缓存
     // File cache timing writing
     private final ExecutorService registryCacheExecutor = Executors.newFixedThreadPool(1, new NamedThreadFactory("DubboSaveRegistryCache", true));
     // Is it synchronized to save the file
@@ -70,10 +73,11 @@ public abstract class AbstractRegistry implements Registry {
     private final AtomicLong lastCacheChanged = new AtomicLong();
     private final Set<URL> registered = new ConcurrentHashSet<URL>();
     private final ConcurrentMap<URL, Set<NotifyListener>> subscribed = new ConcurrentHashMap<URL, Set<NotifyListener>>();
+    // 在内存中缓存
     private final ConcurrentMap<URL, Map<String, List<URL>>> notified = new ConcurrentHashMap<URL, Map<String, List<URL>>>();
     private URL registryUrl;
     // Local disk cache file
-    private File file;
+    private File file;      // 消费者从注册中心获取注册信息后会缓存在本地，磁盘文件缓存
 
     public AbstractRegistry(URL url) {
         setUrl(url);
@@ -140,6 +144,7 @@ public abstract class AbstractRegistry implements Registry {
     }
 
     public void doSaveProperties(long version) {
+        // 旧操作
         if (version < lastCacheChanged.get()) {
             return;
         }
@@ -190,6 +195,7 @@ public abstract class AbstractRegistry implements Registry {
         }
     }
 
+    // 从本地文件加载缓存到properties
     private void loadProperties() {
         if (file != null && file.exists()) {
             InputStream in = null;
@@ -434,7 +440,9 @@ public abstract class AbstractRegistry implements Registry {
                 }
             }
             properties.setProperty(url.getServiceKey(), buf.toString());
+            // 缓存的版本号
             long version = lastCacheChanged.incrementAndGet();
+            // 异步或同步保存缓存
             if (syncSaveFile) {
                 doSaveProperties(version);
             } else {

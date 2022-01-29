@@ -21,6 +21,9 @@ package com.alibaba.dubbo.samples.echo;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+/**
+ * 使用Spring启动项目暴露服务。
+ */
 public class EchoProvider {
 
     public static void main(String[] args) throws Exception {

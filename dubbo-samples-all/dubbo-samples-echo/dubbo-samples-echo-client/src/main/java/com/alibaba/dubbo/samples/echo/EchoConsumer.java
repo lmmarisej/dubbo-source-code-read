@@ -28,6 +28,7 @@ public class EchoConsumer {
     public static void main(String[] args) {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"spring/echo-consumer.xml"});
         context.start();
+        // 将从注册中心获得服务提供者地址，最后从服务提供者得取EchoService的实现
         EchoService echoService = (EchoService) context.getBean("echoService"); // get remote service proxy
 
         String status = echoService.echo("Hello world!");

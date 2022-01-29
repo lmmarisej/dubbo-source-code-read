@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * FailbackRegistry. (SPI, Prototype, ThreadSafe)
  *
+ * 增加了失败重试抽象。
  */
 public abstract class FailbackRegistry extends AbstractRegistry {
 
@@ -48,14 +49,19 @@ public abstract class FailbackRegistry extends AbstractRegistry {
     // Timer for failure retry, regular check if there is a request for failure, and if there is, an unlimited retry
     private final ScheduledFuture<?> retryFuture;
 
+    // 注册失败
     private final Set<URL> failedRegistered = new ConcurrentHashSet<URL>();
 
+    // 取消注册失败
     private final Set<URL> failedUnregistered = new ConcurrentHashSet<URL>();
 
+    // 订阅失败
     private final ConcurrentMap<URL, Set<NotifyListener>> failedSubscribed = new ConcurrentHashMap<URL, Set<NotifyListener>>();
 
+    // 取消订阅失败
     private final ConcurrentMap<URL, Set<NotifyListener>> failedUnsubscribed = new ConcurrentHashMap<URL, Set<NotifyListener>>();
 
+    // 通知失败
     private final ConcurrentMap<URL, Map<NotifyListener, List<URL>>> failedNotified = new ConcurrentHashMap<URL, Map<NotifyListener, List<URL>>>();
 
     /**
@@ -307,7 +313,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         }
     }
 
-    // Retry the failed actions
+    // Retry the failed actions     遍历所有的失败集合，将其重试
     protected void retry() {
         if (!failedRegistered.isEmpty()) {
             Set<URL> failed = new HashSet<URL>(failedRegistered);

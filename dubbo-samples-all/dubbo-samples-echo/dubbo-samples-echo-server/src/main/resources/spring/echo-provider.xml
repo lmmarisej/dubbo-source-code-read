@@ -7,11 +7,12 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
 
+    <!-- dubbo开头的标签，交由dubbo来解析配置 -->
     <!-- 服务提供方应用名称, 方便用于依赖跟踪 -->
     <dubbo:application name="echo-provider"/>
 
     <!-- 使用本地zookeeper作为注册中心 -->
-    <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
+    <dubbo:registry address="zookeeper://127.0.0.1:2181"/>      <!--需要额外先启动zookeeper服务器，并工作在2181端口-->
 
     <!-- 只用Dubbo协议并且指定监听端口 20880 -->
     <dubbo:protocol name="dubbo" port="20880"/>
@@ -19,7 +20,11 @@
     <!-- 通过xml方式配置为bean, 让spring托管和实例化 -->
     <bean id="echoService" class="com.alibaba.dubbo.samples.echo.impl.EchoServiceImpl"/>
 
-    <!-- 声明服务暴露的接口，并暴露服务 -->
+    <!-- 声明服务暴露的接口，并暴露服务
+        暴露服务后，可以通过Telnet来调用，使用JSON格式传递参数：
+                telnet 127.0.0.1 20880
+                invoke com.alibaba.dubbo.samples.echo.api.EchoService.echo("1111")
+    -->
     <dubbo:service interface="com.alibaba.dubbo.samples.echo.api.EchoService" ref="echoService"/>
 
 </beans>
