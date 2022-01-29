@@ -125,6 +125,7 @@ public abstract class AnnotationInjectedBeanPostProcessor<A extends Annotation> 
 
         InjectionMetadata metadata = findInjectionMetadata(beanName, bean.getClass(), pvs);
         try {
+            // 对字段方法进行反射绑定
             metadata.inject(bean, beanName, pvs);
         } catch (BeanCreationException ex) {
             throw ex;
@@ -150,6 +151,7 @@ public abstract class AnnotationInjectedBeanPostProcessor<A extends Annotation> 
             @Override
             public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
 
+                // 遍历服务类的所有字段，找reference注解
                 A annotation = getAnnotation(field, getAnnotationType());
 
                 if (annotation != null) {

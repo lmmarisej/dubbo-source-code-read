@@ -40,7 +40,7 @@ public class AvailableCluster implements Cluster {
         return new AbstractClusterInvoker<T>(directory) {
             @Override
             public Result doInvoke(Invocation invocation, List<Invoker<T>> invokers, LoadBalance loadbalance) throws RpcException {
-                for (Invoker<T> invoker : invokers) {
+                for (Invoker<T> invoker : invokers) {       // 使用注册中心进行消费，先配置先消费
                     if (invoker.isAvailable()) {
                         return invoker.invoke(invocation);
                     }

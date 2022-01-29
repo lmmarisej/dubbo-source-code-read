@@ -224,11 +224,12 @@ public class DubboProtocol extends AbstractProtocol {
         return DEFAULT_PORT;
     }
 
+    // dubbo协议暴露
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
         URL url = invoker.getUrl();
 
-        // export service.
+        // export service.  根据服务分组、版本、接口和端口构造key
         String key = serviceKey(url);
         DubboExporter<T> exporter = new DubboExporter<T>(invoker, key, exporterMap);
         exporterMap.put(key, exporter);
@@ -248,6 +249,7 @@ public class DubboProtocol extends AbstractProtocol {
             }
         }
 
+        // 服务初次暴露会创建监听服务器
         openServer(url);
         optimizeSerialization(url);
         return exporter;
@@ -282,6 +284,7 @@ public class DubboProtocol extends AbstractProtocol {
         url = url.addParameter(Constants.CODEC_KEY, DubboCodec.NAME);
         ExchangeServer server;
         try {
+            // 创建NettyServer并且初始化Handler
             server = Exchangers.bind(url, requestHandler);
         } catch (RemotingException e) {
             throw new RpcException("Fail to start server(url: " + url + ") " + e.getMessage(), e);

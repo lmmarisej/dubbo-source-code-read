@@ -21,6 +21,10 @@ import com.alibaba.dubbo.common.Node;
 /**
  * Invoker. (API/SPI, Prototype, ThreadSafe)
  *
+ * dubbo将服务实例通过代理转化为Invoker。
+ *
+ * 承载了网络连接、服务调用和重试等功能，在客户端，它可能是一个远程的实现，也可能是一个集群的实现。
+ *
  * @see com.alibaba.dubbo.rpc.Protocol#refer(Class, com.alibaba.dubbo.common.URL)
  * @see com.alibaba.dubbo.rpc.InvokerListener
  * @see com.alibaba.dubbo.rpc.protocol.AbstractInvoker

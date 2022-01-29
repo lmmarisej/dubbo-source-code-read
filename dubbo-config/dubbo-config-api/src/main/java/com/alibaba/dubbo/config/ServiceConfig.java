@@ -219,6 +219,9 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         }
     }
 
+    /**
+     * 框架真正进行服务暴露的入口，无论是xml还是注解，都将转化为ServiceBean。
+     */
     protected synchronized void doExport() {
         if (unexported) {
             throw new IllegalStateException("Already unexported!");
@@ -317,6 +320,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         if (path == null || path.length() == 0) {
             path = interfaceName;
         }
+        // 支持多注册中心同时写，同时注册了多个注册中心，将在doExportUrls依次暴露
         doExportUrls();
         CodecSupport.addProviderSupportedSerialization(getUniqueServiceName(), getExportedUrls());
         ProviderModel providerModel = new ProviderModel(getUniqueServiceName(), this, ref);
@@ -357,12 +361,15 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrls() {
+        // 获取当前服务对应的注册中心实例
         List<URL> registryURLs = loadRegistries(true);
+        // 支持同时暴露多个协议，依次对每个协议暴露，将协议元数据写入多个注册中心
         for (ProtocolConfig protocolConfig : protocols) {
             doExportUrlsFor1Protocol(protocolConfig, registryURLs);
         }
     }
 
+    // 服务暴露
     private void doExportUrlsFor1Protocol(ProtocolConfig protocolConfig, List<URL> registryURLs) {
         String name = protocolConfig.getName();
         if (name == null || name.length() == 0) {
@@ -376,8 +383,10 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         if (ConfigUtils.getPid() > 0) {
             map.put(Constants.PID_KEY, String.valueOf(ConfigUtils.getPid()));
         }
+        // 读取其它信息到map，用于继续构造url
         appendParameters(map, application);
         appendParameters(map, module);
+        // 读取全局配置信息，自动添加前缀
         appendParameters(map, provider, Constants.DEFAULT_KEY);
         appendParameters(map, protocolConfig);
         appendParameters(map, this);
@@ -399,11 +408,11 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                             Method[] methods = interfaceClass.getMethods();
                             // visit all methods
                             if (methods != null && methods.length > 0) {
-                                for (int i = 0; i < methods.length; i++) {
-                                    String methodName = methods[i].getName();
+                                for (Method value : methods) {
+                                    String methodName = value.getName();
                                     // target the method, and get its signature
                                     if (methodName.equals(method.getName())) {
-                                        Class<?>[] argtypes = methods[i].getParameterTypes();
+                                        Class<?>[] argtypes = value.getParameterTypes();
                                         // one callback in the method
                                         if (argument.getIndex() != -1) {
                                             if (argtypes[argument.getIndex()].getName().equals(argument.getType())) {
@@ -490,6 +499,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 exportLocal(url);
             }
             // export to remote if the config is not local (export to local only when config is local)
+            // 本地服务暴露
             if (!Constants.SCOPE_LOCAL.toString().equalsIgnoreCase(scope)) {
                 if (logger.isInfoEnabled()) {
                     logger.info("Export dubbo service " + interfaceClass.getName() + " to url " + url);
@@ -499,6 +509,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                         url = url.addParameterIfAbsent(Constants.DYNAMIC_KEY, registryURL.getParameter(Constants.DYNAMIC_KEY));
                         URL monitorUrl = loadMonitor(registryURL);
                         if (monitorUrl != null) {
+                            // 配置了监控地址，上报服务调用信息
                             url = url.addParameterAndEncoded(Constants.MONITOR_KEY, monitorUrl.toFullString());
                         }
                         if (logger.isInfoEnabled()) {
@@ -511,10 +522,13 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                             registryURL = registryURL.addParameter(Constants.PROXY_KEY, proxy);
                         }
 
+                        // 动态代理将service转化为Invoker，registryURL存储注册中心地址，通过EXPORT_KEY追加服务元数据信息
                         Invoker<?> invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, registryURL.addParameterAndEncoded(Constants.EXPORT_KEY, url.toFullString()));
+                        // 将invoker和当前运行时的配置信息一起封装
                         DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
 
                         Exporter<?> exporter = protocol.export(wrapperInvoker);
+                        // 服务暴露后向注册中心注册服务信息
                         exporters.add(exporter);
                     }
                 } else {
@@ -522,6 +536,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                     DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
 
                     Exporter<?> exporter = protocol.export(wrapperInvoker);
+                    // 没有注册中心，直接暴露服务
                     exporters.add(exporter);
                 }
             }
@@ -529,15 +544,19 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         this.urls.add(url);
     }
 
+    // JVM 内部引用了自身服务，dubbo将远程服务调用使用injvm协议再暴露一次，避免远程调用
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void exportLocal(URL url) {
         if (!Constants.LOCAL_PROTOCOL.equalsIgnoreCase(url.getProtocol())) {
+            // 生成本地url
             URL local = URL.valueOf(url.toFullString())
                     .setProtocol(Constants.LOCAL_PROTOCOL)
                     .setHost(LOCALHOST)
                     .setPort(0);
             StaticContext.getContext(Constants.SERVICE_IMPL_CLASS).put(url.getServiceKey(), getServiceClass(ref));
+            // 转为Exporter
             Exporter<?> exporter = protocol.export(
+                    // 先生成invoker
                     proxyFactory.getInvoker(ref, (Class) interfaceClass, local));
             exporters.add(exporter);
             logger.info("Export dubbo service " + interfaceClass.getName() + " to local registry");

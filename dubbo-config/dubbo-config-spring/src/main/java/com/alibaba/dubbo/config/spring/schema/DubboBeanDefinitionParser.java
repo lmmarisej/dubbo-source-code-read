@@ -73,6 +73,7 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
 
     @SuppressWarnings("unchecked")
     private static BeanDefinition parse(Element element, ParserContext parserContext, Class<?> beanClass, boolean required) {
+        // 解析xml生成bean定义，具体的bean实例化交给Spring使用反射处理
         RootBeanDefinition beanDefinition = new RootBeanDefinition();
         beanDefinition.setBeanClass(beanClass);
         beanDefinition.setLazyInit(false);
@@ -80,25 +81,32 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
         if ((id == null || id.length() == 0) && required) {
             String generatedBeanName = element.getAttribute("name");
             if (generatedBeanName == null || generatedBeanName.length() == 0) {
+                // ProtocolConfig的名字为dubbo
                 if (ProtocolConfig.class.equals(beanClass)) {
                     generatedBeanName = "dubbo";
                 } else {
+                    // 使用接口名作为beanName
                     generatedBeanName = element.getAttribute("interface");
                 }
             }
             if (generatedBeanName == null || generatedBeanName.length() == 0) {
+                // 使用类名作为beanName
                 generatedBeanName = beanClass.getName();
             }
+            // 在没有预设id的情况下，将id与beanName保持一致
             id = generatedBeanName;
             int counter = 2;
             while (parserContext.getRegistry().containsBeanDefinition(id)) {
+                // id重复，后跟数字重命名
                 id = generatedBeanName + (counter++);
             }
         }
         if (id != null && id.length() > 0) {
+            // 确保没有重复的bean定义
             if (parserContext.getRegistry().containsBeanDefinition(id)) {
                 throw new IllegalStateException("Duplicate spring bean id " + id);
             }
+            // beanDefinition注册到容器
             parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
             beanDefinition.getPropertyValues().addPropertyValue("id", id);
         }
@@ -123,6 +131,7 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
                 beanDefinition.getPropertyValues().addPropertyValue("ref", new BeanDefinitionHolder(classDefinition, id + "Impl"));
             }
         } else if (ProviderConfig.class.equals(beanClass)) {
+            // service标签解析
             parseNested(element, parserContext, ServiceBean.class, true, "service", "provider", id, beanDefinition);
         } else if (ConsumerConfig.class.equals(beanClass)) {
             parseNested(element, parserContext, ReferenceBean.class, false, "reference", "consumer", id, beanDefinition);
@@ -131,6 +140,7 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
         ManagedMap parameters = null;
         for (Method setter : beanClass.getMethods()) {
             String name = setter.getName();
+            // 提取set对应属性名字
             if (name.length() > 3 && name.startsWith("set")
                     && Modifier.isPublic(setter.getModifiers())
                     && setter.getParameterTypes().length == 1) {
@@ -222,6 +232,7 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
                                             throw new IllegalStateException("The exported service ref " + value + " must be singleton! Please set the " + value + " bean scope to singleton, eg: <bean id=\"" + value + "\" scope=\"singleton\" ...>");
                                         }
                                     }
+                                    // 属性时引用对象，交给Spring运行时注入
                                     reference = new RuntimeBeanReference(value);
                                 }
                                 beanDefinition.getPropertyValues().addPropertyValue(propertyName, reference);

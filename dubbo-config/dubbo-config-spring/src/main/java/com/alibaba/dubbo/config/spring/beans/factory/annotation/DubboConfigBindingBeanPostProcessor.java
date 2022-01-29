@@ -46,6 +46,8 @@ import static org.springframework.beans.factory.BeanFactoryUtils.beansOfTypeIncl
  * @see EnableDubboConfigBinding
  * @see DubboConfigBindingRegistrar
  * @since 2.5.8
+ *
+ * 委托Spring对属性值进行绑定。
  */
 
 public class DubboConfigBindingBeanPostProcessor implements BeanPostProcessor, ApplicationContextAware, InitializingBean {

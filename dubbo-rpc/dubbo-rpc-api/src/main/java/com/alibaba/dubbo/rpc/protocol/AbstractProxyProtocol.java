@@ -70,6 +70,7 @@ public abstract class AbstractProxyProtocol extends AbstractProtocol {
         }
         final Runnable runnable = doExport(proxyFactory.getProxy(invoker, true), invoker.getInterface(), invoker.getUrl());
         exporter = new AbstractExporter<T>(invoker) {
+            // invoker注销时，将端口和map中服务实例一并注销
             @Override
             public void unexport() {
                 super.unexport();

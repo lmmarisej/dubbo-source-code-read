@@ -32,7 +32,8 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 /**
  * DubboNamespaceHandler
  *
- * @export
+ * Spring 在解析到自定义的 namespace 标签时 （ 比如 ＜dubbo:service＞ 标签 ） ， 会查找对应的 spring.schemas 和 spring.handlers 文件 ，
+ * 最终触发Dubbo 的 DubboNamespaceHandler 类来进行初始化和解析 。
  */
 public class DubboNamespaceHandler extends NamespaceHandlerSupport {
 
@@ -42,6 +43,7 @@ public class DubboNamespaceHandler extends NamespaceHandlerSupport {
 
     @Override
     public void init() {
+        // 将对不同标签的解析关联到解析器中
         registerBeanDefinitionParser("application", new DubboBeanDefinitionParser(ApplicationConfig.class, true));
         registerBeanDefinitionParser("module", new DubboBeanDefinitionParser(ModuleConfig.class, true));
         registerBeanDefinitionParser("registry", new DubboBeanDefinitionParser(RegistryConfig.class, true));

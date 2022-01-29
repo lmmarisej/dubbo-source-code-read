@@ -81,6 +81,7 @@ public class InjvmProtocol extends AbstractProtocol implements Protocol {
         return DEFAULT_PORT;
     }
 
+    // 这个协议不会做端口暴露
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
         return new InjvmExporter<T>(invoker, invoker.getUrl().getServiceKey(), exporterMap);

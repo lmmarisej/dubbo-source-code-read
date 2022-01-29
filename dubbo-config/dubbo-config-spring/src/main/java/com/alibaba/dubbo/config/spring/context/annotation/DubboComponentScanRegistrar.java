@@ -48,12 +48,16 @@ import static org.springframework.beans.factory.support.BeanDefinitionBuilder.ro
  * @see ServiceAnnotationBeanPostProcessor
  * @see ReferenceAnnotationBeanPostProcessor
  * @since 2.5.7
+ *
+ * DubboComponentScan激活。
  */
 public class DubboComponentScanRegistrar implements ImportBeanDefinitionRegistrar {
 
+    // 注册BeanDefinition的BeanDefinitionRegistryPostProcessor处理器
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
+        // 根据用户配置信息，获取需要扫描的包路径
         Set<String> packagesToScan = getPackagesToScan(importingClassMetadata);
 
         registerServiceAnnotationBeanPostProcessor(packagesToScan, registry);
@@ -71,6 +75,7 @@ public class DubboComponentScanRegistrar implements ImportBeanDefinitionRegistra
      */
     private void registerServiceAnnotationBeanPostProcessor(Set<String> packagesToScan, BeanDefinitionRegistry registry) {
 
+        // 处理服务注解
         BeanDefinitionBuilder builder = rootBeanDefinition(ServiceAnnotationBeanPostProcessor.class);
         builder.addConstructorArgValue(packagesToScan);
         builder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -87,20 +92,23 @@ public class DubboComponentScanRegistrar implements ImportBeanDefinitionRegistra
     private void registerReferenceAnnotationBeanPostProcessor(BeanDefinitionRegistry registry) {
 
         // Register @Reference Annotation Bean Processor
+        // 处理消费注解
         BeanRegistrar.registerInfrastructureBean(registry,
                 ReferenceAnnotationBeanPostProcessor.BEAN_NAME, ReferenceAnnotationBeanPostProcessor.class);
 
     }
 
+    // 解析用户定义的 DubboComponentScan 注解，获得需要扫描的包名
     private Set<String> getPackagesToScan(AnnotationMetadata metadata) {
         AnnotationAttributes attributes = AnnotationAttributes.fromMap(
                 metadata.getAnnotationAttributes(DubboComponentScan.class.getName()));
         String[] basePackages = attributes.getStringArray("basePackages");
         Class<?>[] basePackageClasses = attributes.getClassArray("basePackageClasses");
-        String[] value = attributes.getStringArray("value");
+        String[] value = attributes.getStringArray("value");        // 扫描指定路径
         // Appends value array attributes
         Set<String> packagesToScan = new LinkedHashSet<String>(Arrays.asList(value));
         packagesToScan.addAll(Arrays.asList(basePackages));
+        // 将class名解析为包名
         for (Class<?> basePackageClass : basePackageClasses) {
             packagesToScan.add(ClassUtils.getPackageName(basePackageClass));
         }

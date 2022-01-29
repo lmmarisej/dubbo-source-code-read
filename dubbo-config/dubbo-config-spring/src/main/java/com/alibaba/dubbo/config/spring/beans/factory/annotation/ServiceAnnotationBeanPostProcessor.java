@@ -70,6 +70,8 @@ import static org.springframework.util.ClassUtils.resolveClassName;
  * {@link Service} Annotation
  * {@link BeanDefinitionRegistryPostProcessor Bean Definition Registry Post Processor}
  *
+ * 服务注解扫描与注册。
+ *
  * @since 2.5.8
  */
 public class ServiceAnnotationBeanPostProcessor implements BeanDefinitionRegistryPostProcessor, EnvironmentAware,
@@ -101,6 +103,7 @@ public class ServiceAnnotationBeanPostProcessor implements BeanDefinitionRegistr
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
+        // 用户配置的包扫描路径
         Set<String> resolvedPackagesToScan = resolvePackagesToScan(packagesToScan);
 
         if (!CollectionUtils.isEmpty(resolvedPackagesToScan)) {
@@ -129,20 +132,24 @@ public class ServiceAnnotationBeanPostProcessor implements BeanDefinitionRegistr
 
         scanner.setBeanNameGenerator(beanNameGenerator);
 
+        // 指定扫描dubbo的注解
         scanner.addIncludeFilter(new AnnotationTypeFilter(Service.class));
 
         for (String packageToScan : packagesToScan) {
 
             // Registers @Service Bean first
+            // 将@Service作为不同的bean注入容器
             scanner.scan(packageToScan);
 
             // Finds all BeanDefinitionHolders of @Service whether @ComponentScan scans or not.
+            // 对扫描的服务创建BeanDefinitionHolder，用于生成serviceBean定义
             Set<BeanDefinitionHolder> beanDefinitionHolders =
                     findServiceBeanDefinitionHolders(scanner, packageToScan, registry, beanNameGenerator);
 
             if (!CollectionUtils.isEmpty(beanDefinitionHolders)) {
 
                 for (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) {
+                    // 注册ServiceBean定义并做数据绑定和解析
                     registerServiceBean(beanDefinitionHolder, registry, scanner);
                 }
 
@@ -247,8 +254,10 @@ public class ServiceAnnotationBeanPostProcessor implements BeanDefinitionRegistr
     private void registerServiceBean(BeanDefinitionHolder beanDefinitionHolder, BeanDefinitionRegistry registry,
                                      DubboClassPathBeanDefinitionScanner scanner) {
 
+        // 加载类
         Class<?> beanClass = resolveClass(beanDefinitionHolder);
 
+        // 解析class上的service注解
         Service service = findAnnotation(beanClass, Service.class);
 
         Class<?> interfaceClass = resolveServiceInterfaceClass(beanClass, service);

@@ -44,12 +44,15 @@ public class ProtocolFilterWrapper implements Protocol {
     }
 
     private static <T> Invoker<T> buildInvokerChain(final Invoker<T> invoker, String key, String group) {
+        // 真正的服务对象
         Invoker<T> last = invoker;
         List<Filter> filters = ExtensionLoader.getExtensionLoader(Filter.class).getActivateExtension(invoker.getUrl(), key, group);
         if (!filters.isEmpty()) {
+            // 倒序遍历，构建拦截器链，将服务对象放入拦截器链尾
             for (int i = filters.size() - 1; i >= 0; i--) {
                 final Filter filter = filters.get(i);
                 final Invoker<T> next = last;
+                // 将filter包装为invoker
                 last = new Invoker<T>() {
 
                     @Override
@@ -69,6 +72,7 @@ public class ProtocolFilterWrapper implements Protocol {
 
                     @Override
                     public Result invoke(Invocation invocation) throws RpcException {
+                        // 第一次遍历，filter是排在最后一个的过滤器，next是真正的服务对象
                         return filter.invoke(next, invocation);
                     }
 
@@ -97,6 +101,7 @@ public class ProtocolFilterWrapper implements Protocol {
         if (Constants.REGISTRY_PROTOCOL.equals(invoker.getUrl().getProtocol())) {
             return protocol.export(invoker);
         }
+        // 先构造拦截器链，再触发dubbo协议暴露
         return protocol.export(buildInvokerChain(invoker, Constants.SERVICE_FILTER_KEY, Constants.PROVIDER));
     }
 

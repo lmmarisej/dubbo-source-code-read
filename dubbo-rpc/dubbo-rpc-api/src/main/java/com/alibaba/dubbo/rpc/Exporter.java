@@ -19,6 +19,8 @@ package com.alibaba.dubbo.rpc;
 /**
  * Exporter. (API/SPI, Prototype, ThreadSafe)
  *
+ * 把invoker通过具体的协议转化为Exporter。
+ *
  * @see com.alibaba.dubbo.rpc.Protocol#export(Invoker)
  * @see com.alibaba.dubbo.rpc.ExporterListener
  * @see com.alibaba.dubbo.rpc.protocol.AbstractExporter

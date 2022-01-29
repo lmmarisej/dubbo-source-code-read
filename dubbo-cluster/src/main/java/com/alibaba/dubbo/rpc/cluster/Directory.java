@@ -25,6 +25,9 @@ import java.util.List;
 
 /**
  * Directory. (SPI, Prototype, ThreadSafe)
+ *
+ * 目录映射到网络资源。
+ *
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Directory_service">Directory Service</a>
  *
