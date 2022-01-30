@@ -41,20 +41,27 @@ import static com.alibaba.dubbo.common.Constants.SERIALIZATION_ID_KEY;
 import static com.alibaba.dubbo.common.Constants.SERIALIZATION_SECURITY_CHECK_KEY;
 import static com.alibaba.dubbo.rpc.protocol.dubbo.CallbackServiceCodec.decodeInvocationArgument;
 
+/**
+ * 是一个可解码的 Invocation 实现类。服务消费方是对 RpcInvocation 对象进行序列化，也就是将请求体 RpcInvocation 中相关信息写入字节流。
+ * 服务提供方对字节流反序列化，将读取到的信息放入到 DecodeableRpcInvocation 对象，作为 Request 的请求体数据。
+ *
+ * 是一个支持解码功能的实现类，并不支持编码功能。
+ */
 public class DecodeableRpcInvocation extends RpcInvocation implements Codec, Decodeable {
 
     private static final Logger log = LoggerFactory.getLogger(DecodeableRpcInvocation.class);
 
-    private Channel channel;
+    private Channel channel;        //  Dubbo 的通道
 
-    private byte serializationType;
+    private byte serializationType;     // Serialization 类型编号
 
-    private InputStream inputStream;
+    private InputStream inputStream;        // 消息字节流
 
     private Request request;
 
-    private volatile boolean hasDecoded;
+    private volatile boolean hasDecoded;        // 是否已经解码完成
 
+    // 可解码 Invocation
     public DecodeableRpcInvocation(Channel channel, Request request, InputStream is, byte id) {
         Assert.notNull(channel, "channel == null");
         Assert.notNull(request, "request == null");
@@ -74,6 +81,7 @@ public class DecodeableRpcInvocation extends RpcInvocation implements Codec, Dec
                 if (log.isWarnEnabled()) {
                     log.warn("Decode rpc invocation failed: " + e.getMessage(), e);
                 }
+                // 解码失败，设置失败标志
                 request.setBroken(true);
                 request.setData(e);
             } finally {
@@ -89,10 +97,12 @@ public class DecodeableRpcInvocation extends RpcInvocation implements Codec, Dec
 
     @Override
     public Object decode(Channel channel, InputStream input) throws IOException {
+        // 获取序列化方式，然后通过反序列化得到所需的调用信息
         ObjectInput in = CodecSupport.getSerialization(channel.getUrl(), serializationType)
                 .deserialize(channel.getUrl(), input);
         this.put(SERIALIZATION_ID_KEY, serializationType);
 
+        // 框架版本
         String dubboVersion = in.readUTF();
         request.setVersion(dubboVersion);
         setAttachment(Constants.DUBBO_VERSION_KEY, dubboVersion);

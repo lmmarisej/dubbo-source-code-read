@@ -32,6 +32,8 @@ import java.net.InetSocketAddress;
 
 /**
  * AbstractCodec
+ *
+ * 提供基础能力，比如校验报文长度和查找具体编解码器等。
  */
 public abstract class AbstractCodec implements Codec2 {
 

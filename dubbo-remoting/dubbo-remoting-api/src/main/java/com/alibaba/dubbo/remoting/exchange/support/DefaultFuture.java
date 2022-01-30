@@ -38,6 +38,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * DefaultFuture.
+ *
+ * 当客户端多个线程并发请求时，框架内部会调用DefaultFuture对象的get方法进行等待。
  */
 public class DefaultFuture implements ResponseFuture {
 

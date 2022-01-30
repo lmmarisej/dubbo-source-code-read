@@ -28,6 +28,8 @@ import java.util.List;
  *
  * 目录映射到网络资源。
  *
+ * 主要负责拉取和订阅服务提供者、动态配置和路由项。
+ *
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Directory_service">Directory Service</a>
  *

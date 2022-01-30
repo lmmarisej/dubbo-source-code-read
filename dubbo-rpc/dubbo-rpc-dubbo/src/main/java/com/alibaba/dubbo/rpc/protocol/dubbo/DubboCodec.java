@@ -44,24 +44,32 @@ import static com.alibaba.dubbo.rpc.protocol.dubbo.CallbackServiceCodec.encodeIn
 
 /**
  * Dubbo codec.
+ *
+ * 都是对 ExchangeCodec 方法的重写。
+ *
+ * 流中可能包含多个RPC请求，Dubbo框架尝试一次性读取更多完整报文编解码生成对象。
  */
 public class DubboCodec extends ExchangeCodec implements Codec2 {
 
-    public static final String NAME = "dubbo";
-    public static final String DUBBO_VERSION = Version.getProtocolVersion();
-    public static final byte RESPONSE_WITH_EXCEPTION = 0;
-    public static final byte RESPONSE_VALUE = 1;
-    public static final byte RESPONSE_NULL_VALUE = 2;
-    public static final byte RESPONSE_WITH_EXCEPTION_WITH_ATTACHMENTS = 3;
-    public static final byte RESPONSE_VALUE_WITH_ATTACHMENTS = 4;
-    public static final byte RESPONSE_NULL_VALUE_WITH_ATTACHMENTS = 5;
-    public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
-    public static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
+    // 主要是对 Dubbo 响应标记的定义，外加默认方法参数及类型。
+    public static final String NAME = "dubbo";  // 协议名
+    public static final String DUBBO_VERSION = Version.getProtocolVersion();        // 协议版本
+    public static final byte RESPONSE_WITH_EXCEPTION = 0;       // 异常响应
+    public static final byte RESPONSE_VALUE = 1;                // 正常响应，有结果
+    public static final byte RESPONSE_NULL_VALUE = 2;           // 正常响应，无结果
+    public static final byte RESPONSE_WITH_EXCEPTION_WITH_ATTACHMENTS = 3;  // 异常返回包含隐藏参数
+    public static final byte RESPONSE_VALUE_WITH_ATTACHMENTS = 4;           // 响应结果包含隐藏参数
+    public static final byte RESPONSE_NULL_VALUE_WITH_ATTACHMENTS = 5;      // 响应空值包含隐藏参数
+    public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];        // 方法参数
+    public static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];     // 方法参数类型
     private static final Logger log = LoggerFactory.getLogger(DubboCodec.class);
 
+    // 将请求包解析成 Request 模型。
     @Override
     protected Object decodeBody(Channel channel, InputStream is, byte[] header) throws IOException {
-        byte flag = header[2], proto = (byte) (flag & SERIALIZATION_MASK);
+        // 协议头第 3 个字节
+        byte flag = header[2],
+                proto = (byte) (flag & SERIALIZATION_MASK); // 获取序列化器编号
         // get request id.
         long id = Bytes.bytes2long(header, 4);
         if ((flag & FLAG_REQUEST) == 0) {
@@ -174,36 +182,50 @@ public class DubboCodec extends ExchangeCodec implements Codec2 {
         encodeResponseData(channel, out, data, DUBBO_VERSION);
     }
 
+    // 按照顺序依次将所需字段编码成字节流，对应的解码在 DecodeableRpcInvocation 对象中。
     @Override
     protected void encodeRequestData(Channel channel, ObjectOutput out, Object data, String version) throws IOException {
+        // 将请求消息转成 RpcInvocation 对象
         RpcInvocation inv = (RpcInvocation) data;
 
-        out.writeUTF(version);
-        out.writeUTF(inv.getAttachment(Constants.PATH_KEY));
-        out.writeUTF(inv.getAttachment(Constants.VERSION_KEY));
+        // 1 写入 `dubbo`协议、`path`、`version`
+        out.writeUTF(version);      // 写入框架版本
+        out.writeUTF(inv.getAttachment(Constants.PATH_KEY));        // 写入调用接口
+        out.writeUTF(inv.getAttachment(Constants.VERSION_KEY));     // 写入接口指定的版本，默认为 0.0.0
 
+        // 2 写入方法名、参数类型、参数值
         out.writeUTF(inv.getMethodName());
         out.writeUTF(ReflectUtils.getDesc(inv.getParameterTypes()));
+        // 获取方法参数，依次写入方法参数值
         Object[] args = inv.getArguments();
         if (args != null)
             for (int i = 0; i < args.length; i++) {
+                // 调用 CallbackServiceCodec#encodeInvocationArgument(...) 方法编码参数，主要用于参数回调功能
                 out.writeObject(encodeInvocationArgument(channel, inv, i));
             }
+        // 3 写入隐式参数 Map
         out.writeObject(inv.getAttachments());
     }
 
+    // 根据 Dubbo 协议的格式编码响应体，主要将 Dubbo 响应状态和响应值编码成字节流
     @Override
     protected void encodeResponseData(Channel channel, ObjectOutput out, Object data, String version) throws IOException {
+        // 将响应转为 Result 对象
         Result result = (Result) data;
+        // 检测当前协议版本是否支持隐式参数
         // currently, the version value in Response records the version of Request
         boolean attach = Version.isSupportResponseAttatchment(version);
+        // 响应结果没有异常信息
         Throwable th = result.getException();
         if (th == null) {
-            Object ret = result.getValue();
-            if (ret == null) {
+            Object ret = result.getValue();     // 提取正常返回结果
+            if (ret == null) {      // 调用结果为空
+                // 序列化响应类型
                 out.writeByte(attach ? RESPONSE_NULL_VALUE_WITH_ATTACHMENTS : RESPONSE_NULL_VALUE);
             } else {
+                // 序列化响应类型
                 out.writeByte(attach ? RESPONSE_VALUE_WITH_ATTACHMENTS : RESPONSE_VALUE);
+                // 序列化异常对象
                 out.writeObject(ret);
             }
         } else {
@@ -211,9 +233,12 @@ public class DubboCodec extends ExchangeCodec implements Codec2 {
             out.writeObject(th);
         }
 
+        // 当前协议版本支持 Response 带有 attachments 集合
         if (attach) {
             // returns current version of Response to consumer side.
+            // 记录 Dubbo 协议版本，返回给服务消费端
             result.getAttachments().put(Constants.DUBBO_VERSION_KEY, Version.getProtocolVersion());
+            // 序列化 attachments 集合
             out.writeObject(result.getAttachments());
         }
     }

@@ -32,6 +32,8 @@ import java.io.OutputStream;
 
 /**
  * TransportCodec
+ *
+ * 抽象编解码实现，自动帮我们去调用序列化、反序列化实现和自动cleanup流。
  */
 public class TransportCodec extends AbstractCodec {
 

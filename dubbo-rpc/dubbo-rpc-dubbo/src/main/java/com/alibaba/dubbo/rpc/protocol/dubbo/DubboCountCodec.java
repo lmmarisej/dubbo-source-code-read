@@ -29,6 +29,13 @@ import com.alibaba.dubbo.rpc.RpcResult;
 
 import java.io.IOException;
 
+/**
+ * DubboProtocol 默认指定的编解码器就是 DubboCountCodec，编码任务直接委托给 DubboCodec 处理，解码支持多消息处理。
+ *
+ * DubboCountCodec 将编解码的工作都交给了内部封装的 DubboCodec 对象完成，其本身处理以下逻辑：
+ *      - 控制解码过程中 ChannelBuffer 的 readerIndex 指针控制
+ *      - 对多消息解码的支持
+ */
 public final class DubboCountCodec implements Codec2 {
 
     private DubboCodec codec = new DubboCodec();

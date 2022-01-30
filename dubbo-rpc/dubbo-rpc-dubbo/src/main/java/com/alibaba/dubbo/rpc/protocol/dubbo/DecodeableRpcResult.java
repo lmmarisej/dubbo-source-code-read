@@ -40,11 +40,15 @@ import java.util.Map;
 import static com.alibaba.dubbo.common.Constants.SERIALIZATION_ID_KEY;
 import static com.alibaba.dubbo.common.Constants.SERIALIZATION_SECURITY_CHECK_KEY;
 
+/**
+ * 可解码的 Result 实现类。和 DecodeableRpcInvocation 类似，服务提供方是对 Result 对象进行序列化，也就是将响应体 Result 中相关信
+ * 息写入字节流，即将响应状态和响应结果写入字节流。服务消费方将响应消息解码成 DecodeableRpcResult 对象，并作为 Response 的响应结果。
+ */
 public class DecodeableRpcResult extends RpcResult implements Codec, Decodeable {
 
     private static final Logger log = LoggerFactory.getLogger(DecodeableRpcResult.class);
 
-    private Channel channel;
+    private Channel channel;        // Dubbo 底层通道
 
     private byte serializationType;
 
