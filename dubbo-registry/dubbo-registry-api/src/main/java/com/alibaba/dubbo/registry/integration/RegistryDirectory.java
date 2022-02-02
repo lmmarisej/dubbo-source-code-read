@@ -56,28 +56,47 @@ import java.util.Set;
 /**
  * RegistryDirectory
  *
+ * 会自动从注册中心拉取信息，更新Invoker列表、配置信息、路由列表。
  */
 public class RegistryDirectory<T> extends AbstractDirectory<T> implements NotifyListener {
 
     private static final Logger logger = LoggerFactory.getLogger(RegistryDirectory.class);
 
+    // 集群扩展实现 Cluster$Adaptive 对象 - 对同组 Invoker 进行合并
     private static final Cluster cluster = ExtensionLoader.getExtensionLoader(Cluster.class).getAdaptiveExtension();
 
+    // 路由工厂扩展实现 RouterFactory$Adaptive对象 - 创建路由
     private static final RouterFactory routerFactory = ExtensionLoader.getExtensionLoader(RouterFactory.class).getAdaptiveExtension();
 
+    // 配置规则工厂实现 ConfiguratorFactory$Adaptive 对象 - 创建配置对象
     private static final ConfiguratorFactory configuratorFactory = ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class).getAdaptiveExtension();
+    // 注册中心URL的服务键， 如：com.alibaba.dubbo.registry.RegistryService
     private final String serviceKey; // Initialization at construction time, assertion not null
+    // 服务接口类型，如：com.alibaba.dubbo.demo.DemoService；每一个服务引用都对应一个服务目录
     private final Class<T> serviceType; // Initialization at construction time, assertion not null
+    // 服务消费者 URL 的配置项 Map。即 Consumer URL 中 refer 参数解析后得到的全部 KV
     private final Map<String, String> queryMap; // Initialization at construction time, assertion not null
+    // 只保留 Consumer 属性的 URL，也就是由 queryMap 集合重新生成的 URL，URL 主体仍然是注册中心的 URL信息。
     private final URL directoryUrl; // Initialization at construction time, assertion not null, and always assign non null value
+    // 引用的服务接口方法数组
     private final String[] serviceMethods;
+    // 是否引用多个服务分组 - 服务分组概念
     private final boolean multiGroup;
+    // 注册中心的Protocol 对象，使用方设置
     private Protocol protocol; // Initialization at the time of injection, the assertion is not null
+    // 注册中心，使用方设置
     private Registry registry; // Initialization at the time of injection, the assertion is not null
+    /**
+     * 是否禁止访问：
+     * 1 当没有服务提供者
+     * 2 当服务提供者被禁用
+     */
     private volatile boolean forbidden = false;
 
+    // 结合配置规则，重写原始目录URL得到的
     private volatile URL overrideDirectoryUrl; // Initialization at construction time, assertion not null, and always assign non null value
 
+    // 配置规则数组
     private volatile URL registeredConsumerUrl;
 
     /**
@@ -89,12 +108,15 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
     private volatile List<Configurator> configurators; // The initial value is null and the midway may be assigned to null, please use the local variable reference
 
     // Map<url, Invoker> cache service url to invoker mapping.
+    // 服务提供者URL合并处理后的URL串，服务引用创建的Invoker
     private volatile Map<String, Invoker<T>> urlInvokerMap; // The initial value is null and the midway may be assigned to null, please use the local variable reference
 
     // Map<methodName, Invoker> cache service method to invokers mapping.
+    // 方法名与引用Invoker集合的映射
     private volatile Map<String, List<Invoker<T>>> methodInvokerMap; // The initial value is null and the midway may be assigned to null, please use the local variable reference
 
     // Set<invokerUrls> cache invokeUrls to invokers mapping.
+    // 当前缓存的所有 Provider 的 URL
     private volatile Set<URL> cachedInvokerUrls; // The initial value is null and the midway may be assigned to null, please use the local variable reference
 
     public RegistryDirectory(Class<T> serviceType, URL url) {
@@ -156,6 +178,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         this.registry = registry;
     }
 
+    // 订阅某个url的更新信息
     public void subscribe(URL url) {
         setConsumerUrl(url);
         registry.subscribe(url, this);
@@ -192,6 +215,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         }
     }
 
+    // 监听到配置中西对应的url变化。然后更新本次配置参数
     @Override
     public synchronized void notify(List<URL> urls) {
         List<URL> invokerUrls = new ArrayList<URL>();
@@ -591,6 +615,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         }
     }
 
+    // 根据方法名和首参数匹配Invoker
     @Override
     public List<Invoker<T>> doList(Invocation invocation) {
         if (forbidden) {

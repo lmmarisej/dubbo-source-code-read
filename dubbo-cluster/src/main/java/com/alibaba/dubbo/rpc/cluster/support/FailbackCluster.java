@@ -24,6 +24,7 @@ import com.alibaba.dubbo.rpc.cluster.Directory;
 /**
  * {@link FailbackClusterInvoker}
  *
+ * 失败，记录，使用定时线程池重试。请求会做负载均衡。
  */
 public class FailbackCluster implements Cluster {
 

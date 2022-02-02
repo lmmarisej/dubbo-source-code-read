@@ -28,6 +28,10 @@ import java.util.List;
 /**
  * A specific Router designed to realize mock feature.
  * If a request is configured to use mock, then this router guarantees that only the invokers with protocol MOCK appear in final the invoker list, all other invokers will be excluded.
+ *
+ * MockInvokersSelector 实现了 Router 接口，具有服务路由的功能。
+ *
+ * 通过 MockRouterFactory 创建，会在 RouterChain 初始化时被加载，因此每次 Directory.list 的过程中都会执行该路由逻辑。
  */
 public class MockInvokersSelector extends AbstractRouter {
 

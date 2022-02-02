@@ -29,6 +29,7 @@ import java.util.List;
 /**
  * AvailableCluster
  *
+ * 遍历所有的可用节点，使用第一个进行调用，如果没有可用节点，抛出异常。
  */
 public class AvailableCluster implements Cluster {
 

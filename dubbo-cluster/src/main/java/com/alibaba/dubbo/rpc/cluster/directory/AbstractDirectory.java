@@ -37,6 +37,9 @@ import java.util.List;
 /**
  * Abstract implementation of Directory: Invoker list returned from this Directory's list method have been filtered by Routers
  *
+ * 除了维护消费端的 URL 信息，还维护了路由信息。
+ *
+ * 此外，封装了获取 Invoker 列表的流程，具体的逻辑由子类实现。
  */
 public abstract class AbstractDirectory<T> implements Directory<T> {
 

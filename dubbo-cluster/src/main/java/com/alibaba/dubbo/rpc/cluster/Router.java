@@ -25,6 +25,13 @@ import java.util.List;
 
 /**
  * Router. (SPI, Prototype, ThreadSafe)
+ *
+ * 根据用户配置的路由规则以及请求携带信息，过滤出符合条件的 Invoker 集合，供后续负载均衡逻辑使用。
+ *
+ * Router 决定了一次 Dubbo 调用的目标服务，该接口的每个实现类都代表一个路由规则。
+ *
+ * 当消费方调用服务提供方时，Dubbo 根据路由规则从服务目录中筛选出符合条件的服务列表，之后通过负载均衡算法再次进行筛选。
+ *
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Routing">Routing</a>
  *
@@ -36,12 +43,16 @@ public interface Router extends Comparable<Router>{
     /**
      * get the router url.
      *
+     * 获取路由规则URL.
+     *
      * @return url
      */
     URL getUrl();
 
     /**
      * route.
+     *
+     * 路由，筛选匹配的Invoker 集合。
      *
      * @param invokers
      * @param url        refer url

@@ -30,6 +30,8 @@ import java.util.List;
  *
  * 主要负责拉取和订阅服务提供者、动态配置和路由项。
  *
+ * 集群 Cluster 实现类为服务消费者基于 Directory 创建 Cluster Invoker 实例。
+ *
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Directory_service">Directory Service</a>
  *
@@ -46,6 +48,8 @@ public interface Directory<T> extends Node {
 
     /**
      * list invokers.
+     *
+     * 获得所有可用的服务列表。
      *
      * @return invokers
      */

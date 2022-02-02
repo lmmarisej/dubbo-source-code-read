@@ -28,6 +28,12 @@ import java.util.List;
 
 /**
  * LoadBalance. (SPI, Singleton, ThreadSafe)
+ *
+ * 将网络请求或者其它形式的负载 "均摊" 到不同的服务节点上，从而避免服务集群中部分节点压力过大，而另一部分节点比较空闲的情况。
+ *
+ * Dubbo 需要对服务消费者的调用请求进行分配，避免少数提供者节点负载过大，而其它提供者节点处于空闲状态。
+ * 服务提供者负载过大，会导致部分请求超时、甚至丢失等一系列问题，造成线上故障。因此将负载均衡到每个服务提供者是非常有必要的。
+ *
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Load_balancing_(computing)">Load-Balancing</a>
  *
@@ -38,6 +44,8 @@ public interface LoadBalance {
 
     /**
      * select one invoker in list.
+     *
+     * 根据传入的 URL 和 Invocation ，以及负载均衡算法从 Invoker 集合中选择一个 Invoker。
      *
      * @param invokers   invokers.
      * @param url        refer url

@@ -24,6 +24,7 @@ import com.alibaba.dubbo.rpc.cluster.Directory;
 /**
  * {@link ForkingClusterInvoker}
  *
+ * 同时并行调用多个节点，任意一个返回就返回。
  */
 public class ForkingCluster implements Cluster {
 

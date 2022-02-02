@@ -65,6 +65,7 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
         super(directory);
     }
 
+    // 调用失败，定期重试
     private void addFailed(Invocation invocation, AbstractClusterInvoker<?> router) {
         if (retryFuture == null) {
             synchronized (this) {

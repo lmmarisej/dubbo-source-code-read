@@ -24,6 +24,7 @@ import com.alibaba.dubbo.rpc.cluster.Directory;
 /**
  * {@link FailsafeClusterInvoker}
  *
+ * 失败安全。请求失败后忽略异常，不进行任何重试，返回一个空结果。
  */
 public class FailsafeCluster implements Cluster {
 

@@ -24,6 +24,7 @@ import com.alibaba.dubbo.rpc.cluster.Directory;
 /**
  * {@link FailfastClusterInvoker}
  *
+ * 请求失败后返回异常，不进行任务重试。适合非幂等的操作。
  */
 public class FailfastCluster implements Cluster {
 

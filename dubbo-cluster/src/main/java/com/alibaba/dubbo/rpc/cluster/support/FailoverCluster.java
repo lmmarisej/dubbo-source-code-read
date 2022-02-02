@@ -24,6 +24,7 @@ import com.alibaba.dubbo.rpc.cluster.Directory;
 /**
  * {@link FailoverClusterInvoker}
  *
+ * 失败，调用其它服务器。默认执行 3 次，也就是重试 2 次，适合幂等场景操作。
  */
 public class FailoverCluster implements Cluster {
 

@@ -22,6 +22,11 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 /**
  * RouterFactory. (SPI, Singleton, ThreadSafe)
+ *
+ * 是 Dubbo 的扩展点，没有默认扩展实现，用于创建 Router。
+ *
+ * 其中 getRouter 方法动态生成的自适应扩展实现会根据 protocol 参数选择具体扩展实现，然后使用具体的路由工厂创建对应的路由对象。
+ *
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Routing">Routing</a>
  *
@@ -36,6 +41,8 @@ public interface RouterFactory {
      *
      * @param url
      * @return router
+     *
+     * 根据url决定初始化哪个Router的实现。
      */
     @Adaptive("protocol")
     Router getRouter(URL url);

@@ -21,6 +21,7 @@ import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.cluster.Cluster;
 import com.alibaba.dubbo.rpc.cluster.Directory;
 
+// MergeableCluster 会根据是否引用多个服务分组进而激活，无需显示设置。
 public class MergeableCluster implements Cluster {
 
     public static final String NAME = "mergeable";

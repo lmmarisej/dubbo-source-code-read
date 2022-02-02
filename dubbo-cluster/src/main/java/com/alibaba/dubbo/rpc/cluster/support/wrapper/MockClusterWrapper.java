@@ -24,8 +24,10 @@ import com.alibaba.dubbo.rpc.cluster.Directory;
 /**
  * mock impl
  *
+ * 主要是 Mock 的前置处理逻辑，决定是否执行 Mock 逻辑以及执行 Mock 逻辑的时机；在进入 Mock 逻辑之前，需要从服务目录中确定一个 MockInvoker，
+ * 这个是由 MockInvokersSelector 这个路由实现的，如果没有找到 MockInvoker，则主动创建一个 MockInvoker 。
  */
-public class MockClusterWrapper implements Cluster {
+public class MockClusterWrapper implements Cluster {        // 是 Cluster 的 Wrapper 实现。
 
     private Cluster cluster;
 

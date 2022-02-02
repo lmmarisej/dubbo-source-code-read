@@ -18,9 +18,11 @@ package com.alibaba.dubbo.rpc.cluster;
 
 import com.alibaba.dubbo.common.extension.SPI;
 
+// 一个接口有不同的实现，消费者需要同时引用不同的实现时，Merger将结果集合并
 @SPI
 public interface Merger<T> {
 
+    // 合并 T 数组，返回合并后的 T 对象
     T merge(T... items);
 
 }

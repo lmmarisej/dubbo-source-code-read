@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * StaticDirectory
  *
+ * 用于将传入的 Invoker 集合封装成静态的 Directory 对象。
  */
 public class StaticDirectory<T> extends AbstractDirectory<T> {
 
