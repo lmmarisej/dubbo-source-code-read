@@ -22,6 +22,7 @@ import com.alibaba.dubbo.rpc.cluster.configurator.AbstractConfigurator;
 /**
  * AbsentConfigurator
  *
+ * 会先看本地是否存在该配置， 没有则新增本地配置， 如果己经存在则不会覆盖。
  */
 public class AbsentConfigurator extends AbstractConfigurator {
 

@@ -21,6 +21,8 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 /**
  * Compiler. (SPI, Singleton, ThreadSafe)
+ *
+ * 扩展编译@Adaptive生成代码的编译器。
  */
 @SPI("javassist")
 public interface Compiler {

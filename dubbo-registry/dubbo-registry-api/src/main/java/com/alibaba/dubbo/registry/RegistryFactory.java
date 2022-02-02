@@ -23,6 +23,8 @@ import com.alibaba.dubbo.common.extension.SPI;
 /**
  * RegistryFactory. (SPI, Singleton, ThreadSafe)
  *
+ * 整个框架的注册与服务发现客户端都是由这个扩展点负责创建的。
+ *
  * @see com.alibaba.dubbo.registry.support.AbstractRegistryFactory
  */
 @SPI("dubbo")       // 从cl下加载key为dubbo的所有RegistryFactory接口的实现，实现的获取方式为ExtensionLoader

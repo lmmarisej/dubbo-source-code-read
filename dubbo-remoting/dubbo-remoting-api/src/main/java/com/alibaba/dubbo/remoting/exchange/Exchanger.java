@@ -25,6 +25,11 @@ import com.alibaba.dubbo.remoting.exchange.support.header.HeaderExchanger;
 
 /**
  * Exchanger. (SPI, Singleton, ThreadSafe)
+ *
+ * 在传输层之上实现了 Request-Response语义， 这样我们可以在不同传输方式之上都能做到统一的请求/响应处理。
+ *
+ * 例如： 把同步请求转化为异步请求。
+ *
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Message_Exchange_Pattern">Message Exchange Pattern</a>
  * <a href="http://en.wikipedia.org/wiki/Request-response">Request-Response</a>

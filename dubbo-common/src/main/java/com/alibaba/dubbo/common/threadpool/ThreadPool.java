@@ -25,6 +25,10 @@ import java.util.concurrent.Executor;
 
 /**
  * ThreadPool
+ *
+ * 在Transport层由Dispatcher实现不同的派发策略， 最终会派发到不同的ThreadPool中执行。
+ *
+ * ThreadPool扩展接口就是线程池的扩展。
  */
 @SPI("fixed")
 public interface ThreadPool {

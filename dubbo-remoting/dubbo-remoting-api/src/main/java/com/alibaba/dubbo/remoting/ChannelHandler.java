@@ -22,6 +22,8 @@ import com.alibaba.dubbo.common.extension.SPI;
 /**
  * ChannelHandler. (API, Prototype, ThreadSafe)
  *
+ * 处理连接相关的事件， 例如： 连接上、 断开、 发送消息、 收到消息、 出现异常等。
+ *
  * @see com.alibaba.dubbo.remoting.Transporter#bind(com.alibaba.dubbo.common.URL, ChannelHandler)
  * @see com.alibaba.dubbo.remoting.Transporter#connect(com.alibaba.dubbo.common.URL, ChannelHandler)
  *

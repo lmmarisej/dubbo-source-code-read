@@ -40,7 +40,8 @@ import com.alibaba.dubbo.rpc.cluster.support.FailoverCluster;
  * <a href="http://en.wikipedia.org/wiki/Computer_cluster">Cluster</a>
  * <a href="http://en.wikipedia.org/wiki/Fault-tolerant_system">Fault-Tolerant</a>
  *
- * Dubbo 默认内置了若干容错策略，每种容错策略都有独特的应用场景，使用方可以根据具体需要配置不同的容错策略，如果这些内置容错策略不能满足需求，还可以自定义容错策略。
+ * Dubbo 默认内置了若干容错策略，每种容错策略都有独特的应用场景，使用方可以根据具体需要配置不同的容错策略，如果这些内置容错策略不能满足需求，
+ * 还可以自定义容错策略。
  */
 @SPI(FailoverCluster.NAME)
 public interface Cluster {

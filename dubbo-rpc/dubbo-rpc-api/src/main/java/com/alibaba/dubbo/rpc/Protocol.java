@@ -23,7 +23,9 @@ import com.alibaba.dubbo.common.extension.SPI;
 /**
  * Protocol. (API/SPI, Singleton, ThreadSafe)
  *
- * 把invoker通过具体的协议转化为Exporter。
+ * Protocol是Dubbo RPC的核心调用层， 具体的RPC协议都可以由Protocol点扩展。
+ *
+ * 如果想增加一种新的RPC协议， 则只需要扩展一个新的Protocol扩展点实现即可。
  */
 @SPI("dubbo")       // 默认使用dubbo协议。
 public interface Protocol {
@@ -40,8 +42,10 @@ public interface Protocol {
      * 1. Protocol should record request source address after receive a request:
      * RpcContext.getContext().setRemoteAddress();<br>
      * 2. export() must be idempotent, that is, there's no difference between invoking once and invoking twice when
-     * export the same URL<br>
-     * 3. Invoker instance is passed in by the framework, protocol needs not to care <br>
+     * export the same URL<br>  被暴露的方法必须幂等。
+     * 3. Invoker instance is passed in by the framework, protocol needs not to care <br>  由框架传入，无需关心协议层。
+     *
+     * 把一个服务暴露层远程invocation。
      *
      * @param <T>     Service type
      * @param invoker Service invoker
@@ -59,6 +63,8 @@ public interface Protocol {
      * protocol sends remote request in the `Invoker` implementation. <br>
      * 3. When there's check=false set in URL, the implementation must not throw exception but try to recover when
      * connection fails.
+     *
+     * 引用一个远程服务。
      *
      * @param <T>  Service type
      * @param type Service class

@@ -23,6 +23,8 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 /**
  * Validation
+ *
+ * 参数校验。
  */
 @SPI("jvalidation")
 public interface Validation {

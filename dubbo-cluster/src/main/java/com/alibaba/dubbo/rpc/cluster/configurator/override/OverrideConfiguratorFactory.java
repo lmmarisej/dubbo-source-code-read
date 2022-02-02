@@ -23,6 +23,8 @@ import com.alibaba.dubbo.rpc.cluster.ConfiguratorFactory;
 /**
  * AbsentConfiguratorFactory
  *
+ * 直接把配置中心中的参数覆盖本地的参数。
+ *
  */
 public class OverrideConfiguratorFactory implements ConfiguratorFactory {
 

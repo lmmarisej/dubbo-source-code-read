@@ -23,6 +23,12 @@ import com.alibaba.dubbo.remoting.buffer.ChannelBuffer;
 
 import java.io.IOException;
 
+/**
+ * Codec2主要实现对数据的编码和解码， 但这个接口只是需要实现编码/解码过程中的通用逻辑流程，
+ * 如解决半包、 粘包等问题。
+ *
+ * 该接口属于在序列化上封装的一层。
+ */
 @SPI
 public interface Codec2 {
 

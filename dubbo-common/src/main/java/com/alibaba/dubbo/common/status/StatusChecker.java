@@ -20,6 +20,8 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 /**
  * StatusChecker
+ *
+ * 通过扩展，可以让dubbo支持各种状态的检查。
  */
 @SPI
 public interface StatusChecker {

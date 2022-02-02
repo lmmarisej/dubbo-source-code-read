@@ -22,6 +22,8 @@ import java.io.File;
 
 /**
  * Logger provider
+ *
+ * 适配不同的日志框架，提供统一的使用接口。
  */
 @SPI
 public interface LoggerAdapter {

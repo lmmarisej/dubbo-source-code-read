@@ -26,6 +26,8 @@ import java.io.OutputStream;
 
 /**
  * Serialization. (SPI, Singleton, ThreadSafe)
+ *
+ * Serialization是具体的对象序列化扩展接口，即把对象序列化成可以通过网络进行传输的二进制流。
  */
 @SPI("hessian2")
 public interface Serialization {

@@ -20,8 +20,10 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 /**
  * Container. (SPI, Singleton, ThreadSafe)
+ *
+ * 更简单的使用服务容器，不需要使用web容器来运行服务，只需简单地在Main方法中暴露一个服务即可。
  */
-@SPI("spring")
+@SPI("spring")      // 默认使用spring作为dubbo的服务容器。
 public interface Container {
 
     /**

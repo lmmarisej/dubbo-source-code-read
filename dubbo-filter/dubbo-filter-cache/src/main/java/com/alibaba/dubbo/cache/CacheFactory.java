@@ -23,6 +23,8 @@ import com.alibaba.dubbo.rpc.Invocation;
 
 /**
  * CacheFactory
+ *
+ * 缓存，比如缓存方法调用结果。
  */
 @SPI("lru")
 public interface CacheFactory {

@@ -20,6 +20,10 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 /**
  * Filter. (SPI, Singleton, ThreadSafe)
+ *
+ * 是Dubbo的过滤器扩展点， 可以自定义过滤器， 在Invoker调用前后执行自定义的逻辑。
+ *
+ * 在Filter的实现中， 必须要调用传入的Invoker的invoke方法， 否则整个链路就断了。
  */
 @SPI
 public interface Filter {

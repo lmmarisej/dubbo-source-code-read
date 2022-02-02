@@ -26,6 +26,8 @@ import com.alibaba.dubbo.remoting.transport.dispatcher.all.AllDispatcher;
  * ChannelHandlerWrapper (SPI, Singleton, ThreadSafe)
  *
  * 线程池派发器。创建具有线程派发能力的ChannelHandler。
+ *
+ * Dispatcher扩展接口通过不同的派发策略， 把工作派发到不同的线程池， 以此来应对不同的业务场景。
  */
 @SPI(AllDispatcher.NAME)
 public interface Dispatcher {

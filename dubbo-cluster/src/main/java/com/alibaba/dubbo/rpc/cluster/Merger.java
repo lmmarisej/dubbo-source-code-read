@@ -18,7 +18,11 @@ package com.alibaba.dubbo.rpc.cluster;
 
 import com.alibaba.dubbo.common.extension.SPI;
 
-// 一个接口有不同的实现，消费者需要同时引用不同的实现时，Merger将结果集合并
+/**
+ * Merger是合并器， 可以对并行调用的结果集进行合并。
+ *
+ * 默认已经支持map、set、 list、 byte等11种类型的返回值。 用户可以基于该扩展点， 添加自定义类型的合并器。
+ */
 @SPI
 public interface Merger<T> {
 

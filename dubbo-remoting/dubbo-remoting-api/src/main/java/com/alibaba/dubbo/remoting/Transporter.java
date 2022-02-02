@@ -23,6 +23,9 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 /**
  * Transporter. (SPI, Singleton, ThreadSafe)
+ *
+ * Transporter屏蔽了通信框架接口、实现的不同，使用统一的通信接口。
+ *
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Transport_Layer">Transport Layer</a>
  * <a href="http://en.wikipedia.org/wiki/Client%E2%80%93server_model">Client/Server</a>

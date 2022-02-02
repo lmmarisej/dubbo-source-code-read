@@ -29,6 +29,9 @@ import java.util.List;
 /**
  * LoadBalance. (SPI, Singleton, ThreadSafe)
  *
+ * Dubbo框架中的负载均衡策略扩展点， 框架中已经内置随机(Random)、轮询(RoundRobin)、 最小连接数(LeastActive)、
+ * 一致性 Hash（ConsistentHash）这几种负载均衡的方式， 默认使用随机负载均衡策略。
+ *
  * 将网络请求或者其它形式的负载 "均摊" 到不同的服务节点上，从而避免服务集群中部分节点压力过大，而另一部分节点比较空闲的情况。
  *
  * Dubbo 需要对服务消费者的调用请求进行分配，避免少数提供者节点负载过大，而其它提供者节点处于空闲状态。

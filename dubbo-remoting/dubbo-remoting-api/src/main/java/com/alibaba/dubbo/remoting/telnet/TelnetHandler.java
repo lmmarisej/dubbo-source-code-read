@@ -22,6 +22,8 @@ import com.alibaba.dubbo.remoting.RemotingException;
 
 /**
  * TelnetHandler
+ *
+ * 用于扩展新的Telnet命令的接口。
  */
 @SPI
 public interface TelnetHandler {

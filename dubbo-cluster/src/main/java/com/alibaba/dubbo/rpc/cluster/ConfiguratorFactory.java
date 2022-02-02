@@ -23,6 +23,7 @@ import com.alibaba.dubbo.common.extension.SPI;
 /**
  * ConfiguratorFactory. (SPI, Singleton, ThreadSafe)
  *
+ * 分别会创建OverrideConfigupatop和AbsentConfigurator两种配置对象。
  */
 @SPI
 public interface ConfiguratorFactory {
