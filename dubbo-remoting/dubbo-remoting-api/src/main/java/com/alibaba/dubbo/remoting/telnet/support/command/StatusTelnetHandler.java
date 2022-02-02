@@ -41,6 +41,7 @@ public class StatusTelnetHandler implements TelnetHandler {
 
     private final ExtensionLoader<StatusChecker> extensionLoader = ExtensionLoader.getExtensionLoader(StatusChecker.class);
 
+    // 加载所有实现StatusChecker接口的扩展点类，调用所有扩展点的check方法
     @Override
     public String telnet(Channel channel, String message) {
         if (message.equals("-l")) {

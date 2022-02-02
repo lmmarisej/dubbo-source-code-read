@@ -22,6 +22,8 @@ import com.alibaba.dubbo.remoting.Dispatcher;
 
 /**
  * Direct dispatcher
+ *
+ * 所有方法和事件处理都在IO线程中。
  */
 public class DirectDispatcher implements Dispatcher {
 

@@ -25,10 +25,14 @@ import com.alibaba.dubbo.remoting.RemotingException;
 import com.alibaba.dubbo.remoting.telnet.TelnetHandler;
 import com.alibaba.dubbo.remoting.transport.ChannelHandlerAdapter;
 
+/**
+ * 实现ChannelHandler接口，通道处理器适配器，每个方法都是空实现。子类可根据具体场景选择性实现所需方法。
+ */
 public class TelnetHandlerAdapter extends ChannelHandlerAdapter implements TelnetHandler {
 
     private final ExtensionLoader<TelnetHandler> extensionLoader = ExtensionLoader.getExtensionLoader(TelnetHandler.class);
 
+    // 完成指令转发
     @Override
     public String telnet(Channel channel, String message) throws RemotingException {
         String prompt = channel.getUrl().getParameterAndDecoded(Constants.PROMPT_KEY, Constants.DEFAULT_PROMPT);
@@ -36,12 +40,12 @@ public class TelnetHandlerAdapter extends ChannelHandlerAdapter implements Telne
         message = message.replace("--no-prompt", "");
         StringBuilder buf = new StringBuilder();
         message = message.trim();
-        String command;
+        String command;     // 用户输入的指令
         if (message.length() > 0) {
             int i = message.indexOf(' ');
             if (i > 0) {
-                command = message.substring(0, i).trim();
-                message = message.substring(i + 1).trim();
+                command = message.substring(0, i).trim();       // 提取执行命令
+                message = message.substring(i + 1).trim();      // 提取命令后的所有字符串
             } else {
                 command = message;
                 message = "";
@@ -50,7 +54,7 @@ public class TelnetHandlerAdapter extends ChannelHandlerAdapter implements Telne
             command = "";
         }
         if (command.length() > 0) {
-            if (extensionLoader.hasExtension(command)) {
+            if (extensionLoader.hasExtension(command)) {        // 检查是否有对应命令的扩展点
                 if (commandEnabled(channel.getUrl(), command)) {
                     try {
                         String result = extensionLoader.getExtension(command).telnet(channel, message);
@@ -72,7 +76,7 @@ public class TelnetHandlerAdapter extends ChannelHandlerAdapter implements Telne
             }
         }
         if (buf.length() > 0) {
-            buf.append("\r\n");
+            buf.append("\r\n");     // telnet 消息结尾追加回车和换行，作为消息结束符
         }
         if (prompt != null && prompt.length() > 0 && !noprompt) {
             buf.append(prompt);

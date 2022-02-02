@@ -24,6 +24,8 @@ import com.alibaba.dubbo.common.extension.SPI;
  *
  * @see com.alibaba.dubbo.remoting.Transporter#bind(com.alibaba.dubbo.common.URL, ChannelHandler)
  * @see com.alibaba.dubbo.remoting.Transporter#connect(com.alibaba.dubbo.common.URL, ChannelHandler)
+ *
+ * dubbo 针对每个特性都实现对应的ChannelHandler，handler最终与底层通信框架关联。
  */
 @SPI
 public interface ChannelHandler {

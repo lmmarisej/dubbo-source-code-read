@@ -29,6 +29,8 @@ public interface TelnetHandler {
     /**
      * telnet.
      *
+     * 支持扩展更多命令的诉求。
+     *
      * @param channel
      * @param message
      */

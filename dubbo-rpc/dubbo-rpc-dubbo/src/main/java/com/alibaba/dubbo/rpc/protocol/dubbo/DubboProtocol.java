@@ -76,7 +76,7 @@ public class DubboProtocol extends AbstractProtocol {
         public Object reply(ExchangeChannel channel, Object message) throws RemotingException {
             if (message instanceof Invocation) {
                 Invocation inv = (Invocation) message;
-                Invoker<?> invoker = getInvoker(channel, inv);
+                Invoker<?> invoker = getInvoker(channel, inv);      // 查找Invocation关联的invoker
                 // need to consider backward-compatibility if it's a callback
                 if (Boolean.TRUE.toString().equals(inv.getAttachments().get(IS_CALLBACK_SERVICE_INVOKE))) {
                     String methodsStr = invoker.getUrl().getParameters().get("methods");
@@ -101,7 +101,7 @@ public class DubboProtocol extends AbstractProtocol {
                     }
                 }
                 RpcContext.getContext().setRemoteAddress(channel.getRemoteAddress());
-                return invoker.invoke(inv);
+                return invoker.invoke(inv);     // 调用业务方法
             }
             throw new RemotingException(channel, "Unsupported request: "
                     + (message == null ? null : (message.getClass().getName() + ": " + message))
@@ -192,8 +192,8 @@ public class DubboProtocol extends AbstractProtocol {
     Invoker<?> getInvoker(Channel channel, Invocation inv) throws RemotingException {
         boolean isCallBackServiceInvoke = false;
         boolean isStubServiceInvoke = false;
-        int port = channel.getLocalAddress().getPort();
-        String path = inv.getAttachments().get(Constants.PATH_KEY);
+        int port = channel.getLocalAddress().getPort();     // 服务暴露协议的端口
+        String path = inv.getAttachments().get(Constants.PATH_KEY);     // 调用传递的接口
         // if it's callback service on client side
         isStubServiceInvoke = Boolean.TRUE.toString().equals(inv.getAttachments().get(Constants.STUB_EVENT_KEY));
         if (isStubServiceInvoke) {
@@ -205,8 +205,10 @@ public class DubboProtocol extends AbstractProtocol {
             path = inv.getAttachments().get(Constants.PATH_KEY) + "." + inv.getAttachments().get(Constants.CALLBACK_SERVICE_KEY);
             inv.getAttachments().put(IS_CALLBACK_SERVICE_INVOKE, Boolean.TRUE.toString());
         }
+        // 根据端口、接口名、接口分组和接口版本构造唯一的serviceKey
         String serviceKey = serviceKey(port, path, inv.getAttachments().get(Constants.VERSION_KEY), inv.getAttachments().get(Constants.GROUP_KEY));
 
+        // 从暴露的服务实例中找到Exporter
         DubboExporter<?> exporter = (DubboExporter<?>) exporterMap.get(serviceKey);
 
         if (exporter == null)

@@ -21,6 +21,8 @@ import java.util.Map;
 
 /**
  * Response
+ *
+ * 方法调用返回Response。
  */
 public class Response {
 

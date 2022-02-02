@@ -26,6 +26,9 @@ import com.alibaba.dubbo.remoting.exchange.Request;
 
 import java.util.Collection;
 
+/**
+ * 处理dubbo客户端和服务端的心跳事件，用来保持TCP长连接状态，内部开启一个线程循环扫描连接是否超时，在服务端发现超时将主动关闭客户端连接。
+ */
 final class HeartBeatTask implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(HeartBeatTask.class);
@@ -47,7 +50,7 @@ final class HeartBeatTask implements Runnable {
         try {
             long now = System.currentTimeMillis();
             for (Channel channel : channelProvider.getChannels()) {
-                if (channel.isClosed()) {
+                if (channel.isClosed()) {       // 忽略已关闭的channel
                     continue;
                 }
                 try {
@@ -55,7 +58,8 @@ final class HeartBeatTask implements Runnable {
                             HeaderExchangeHandler.KEY_READ_TIMESTAMP);
                     Long lastWrite = (Long) channel.getAttribute(
                             HeaderExchangeHandler.KEY_WRITE_TIMESTAMP);
-                    if ((lastRead != null && now - lastRead > heartbeat)
+                    // 1分钟没有读写事件就发送心跳报文
+                    if ((lastRead != null && now - lastRead > heartbeat)        // TCP连接空闲超过心跳时间，发送事件报文
                             || (lastWrite != null && now - lastWrite > heartbeat)) {
                         Request req = new Request();
                         req.setVersion(Version.getProtocolVersion());
@@ -72,12 +76,12 @@ final class HeartBeatTask implements Runnable {
                                 + ", because heartbeat read idle time out: " + heartbeatTimeout + "ms");
                         if (channel instanceof Client) {
                             try {
-                                ((Client) channel).reconnect();
+                                ((Client) channel).reconnect();     // 客户端空闲超时，触发重连
                             } catch (Exception e) {
                                 //do nothing
                             }
                         } else {
-                            channel.close();
+                            channel.close();        // 服务端主动关闭连接
                         }
                     }
                 } catch (Throwable t) {

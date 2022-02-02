@@ -22,6 +22,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Request.
+ *
+ * dubbo中所有的方法调用被抽象成Request/Response，每次会话都创建一个Request。
  */
 public class Request {
 
