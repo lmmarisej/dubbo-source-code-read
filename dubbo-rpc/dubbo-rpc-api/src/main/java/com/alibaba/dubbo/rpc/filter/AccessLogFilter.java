@@ -58,6 +58,8 @@ import java.util.concurrent.TimeUnit;
  *    &lt;appender-ref ref="foo" /&gt;
  * &lt;/logger&gt;
  * </pre></code>
+ *
+ * 日志过滤器 ， 如果想记录服务每一次的请求日志 ， 则可以开启这个过滤器 。
  */
 @Activate(group = Constants.PROVIDER, value = Constants.ACCESS_LOG_KEY)
 public class AccessLogFilter implements Filter {
@@ -74,6 +76,7 @@ public class AccessLogFilter implements Filter {
 
     private static final long LOG_OUTPUT_INTERVAL = 5000;
 
+    // 如果用户配置了日志要输出到自定义的文件中 ， 则会把日志加入一个 ConcurrentMap<String, ConcurrentHashSet<String>> 中暂存
     private final ConcurrentMap<String, Set<String>> logQueue = new ConcurrentHashMap<String, Set<String>>();
 
     private final ScheduledExecutorService logScheduled = Executors.newScheduledThreadPool(2, new NamedThreadFactory("Dubbo-Access-Log", true));
@@ -82,6 +85,8 @@ public class AccessLogFilter implements Filter {
 
     private void init() {
         if (logFuture == null) {
+            // 加锁并初始化一个定时线程池 ScheduledThreadPool 该线程池只有在指定了输出的 log 文件时才会用到 ,
+            // ScheduledThreadPool 中的线程会定时把队列中的日志数据写入文件 。
             synchronized (logScheduled) {
                 if (logFuture == null) {
                     logFuture = logScheduled.scheduleWithFixedDelay(new LogTask(), LOG_OUTPUT_INTERVAL, LOG_OUTPUT_INTERVAL, TimeUnit.MILLISECONDS);
@@ -107,10 +112,12 @@ public class AccessLogFilter implements Filter {
         try {
             String accesslog = invoker.getUrl().getParameter(Constants.ACCESS_LOG_KEY);
             if (ConfigUtils.isNotEmpty(accesslog)) {
+                // 获取参数 。 获取上下文 、 接口名 、 版本 、 分组信息等参数 ， 用于日志的构建 。
                 RpcContext context = RpcContext.getContext();
                 String serviceName = invoker.getInterface().getName();
                 String version = invoker.getUrl().getParameter(Constants.VERSION_KEY);
                 String group = invoker.getUrl().getParameter(Constants.GROUP_KEY);
+                // 构建日志字符串 。 根据步骤 （ 1 ） 中的数据开始组装日志 ， 最终会得到一个日志字符串
                 StringBuilder sn = new StringBuilder();
                 sn.append("[").append(new SimpleDateFormat(MESSAGE_DATE_FORMAT).format(new Date())).append("] ").append(context.getRemoteHost()).append(":").append(context.getRemotePort())
                         .append(" -> ").append(context.getLocalHost()).append(":").append(context.getLocalPort())
@@ -155,6 +162,7 @@ public class AccessLogFilter implements Filter {
         return invoker.invoke(inv);
     }
 
+    // 日志打印 。
     private class LogTask implements Runnable {
         @Override
         public void run() {

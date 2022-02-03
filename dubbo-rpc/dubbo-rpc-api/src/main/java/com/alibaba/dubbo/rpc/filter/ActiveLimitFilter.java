@@ -28,12 +28,15 @@ import com.alibaba.dubbo.rpc.RpcStatus;
 
 /**
  * LimitInvokerFilter
+ *
+ * 消费者端的过滤器 ， 限制的是客户端的并发数 。
  */
 @Activate(group = Constants.CONSUMER, value = Constants.ACTIVES_KEY)
 public class ActiveLimitFilter implements Filter {
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+        // 获取参数 。 获取方法名 、 最大并发数等参数 ， 为下面的逻辑做准备 。
         URL url = invoker.getUrl();
         String methodName = invocation.getMethodName();
         int max = invoker.getUrl().getMethodParameter(methodName, Constants.ACTIVES_KEY, 0);
@@ -45,14 +48,17 @@ public class ActiveLimitFilter implements Filter {
             int active = count.getActive();
             if (active >= max) {
                 synchronized (count) {
-                    while ((active = count.getActive()) >= max) {
+                    while ((active = count.getActive()) >= max) {       // 限制满了
                         try {
+                            // 先等待直到超时 ， 因为请求是有 timeout 属性的 。
                             count.wait(remain);
                         } catch (InterruptedException e) {
                         }
-                        long elapsed = System.currentTimeMillis() - start;
+                        // 超时检查
+                        long elapsed = System.currentTimeMillis() - start;      // 从阻塞到醒来耗时
                         remain = timeout - elapsed;
                         if (remain <= 0) {
+                            // 等待超时
                             throw new RpcException("Waiting concurrent invoke timeout in client-side for service:  "
                                     + invoker.getInterface().getName() + ", method: "
                                     + invocation.getMethodName() + ", elapsed: " + elapsed
@@ -68,6 +74,7 @@ public class ActiveLimitFilter implements Filter {
             RpcStatus.beginCount(url, methodName);
             try {
                 Result result = invoker.invoke(invocation);
+                // 计数器减一
                 RpcStatus.endCount(url, methodName, System.currentTimeMillis() - begin, true);
                 return result;
             } catch (RuntimeException t) {
@@ -77,7 +84,7 @@ public class ActiveLimitFilter implements Filter {
         } finally {
             if (max > 0) {
                 synchronized (count) {
-                    count.notify();
+                    count.notify();     // 唤醒无法获取锁的阻塞的线程
                 }
             }
         }

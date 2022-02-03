@@ -25,16 +25,21 @@ import java.util.concurrent.ConcurrentMap;
 
 public class DefaultTPSLimiter implements TPSLimiter {
 
+    // 缓存每个接口的令牌数
     private final ConcurrentMap<String, StatItem> stats
             = new ConcurrentHashMap<String, StatItem>();
 
     @Override
     public boolean isAllowable(URL url, Invocation invocation) {
+        // 配置中是否限流
         int rate = url.getParameter(Constants.TPS_LIMIT_RATE_KEY, -1);
         long interval = url.getParameter(Constants.TPS_LIMIT_INTERVAL_KEY,
                 Constants.DEFAULT_TPS_LIMIT_INTERVAL);
+        //  key 是 interface + group + version
         String serviceKey = url.getServiceKey();
+        // 启用限流
         if (rate > 0) {
+            // value 包装了令牌刷新时间间隔、 每次发放的令牌数等属性
             StatItem statItem = stats.get(serviceKey);
             if (statItem == null) {
                 stats.putIfAbsent(serviceKey,
@@ -42,7 +47,9 @@ public class DefaultTPSLimiter implements TPSLimiter {
                 statItem = stats.get(serviceKey);
             } else {
                 //rate or interval has changed, rebuild
+                // 判断上次发放令牌的时间点到现在是否超过时间间隔了
                 if (statItem.getRate() != rate || statItem.getInterval() != interval) {
+                    // 如果超过了就重新发放令牌 ， 之前没用完的不会叠加， 而是直接覆盖。
                     stats.put(serviceKey, new StatItem(serviceKey, rate, interval));
                     statItem = stats.get(serviceKey);
                 }

@@ -38,6 +38,8 @@ import java.util.concurrent.Future;
 
 /**
  * EventFilter
+ *
+ * 实现框架在调用前后出现异常时 ， 触发调用用户配置的回调方法。
  */
 @Activate(group = Constants.CONSUMER)
 public class FutureFilter implements Filter {
@@ -48,13 +50,16 @@ public class FutureFilter implements Filter {
     public Result invoke(final Invoker<?> invoker, final Invocation invocation) throws RpcException {
         final boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
 
+        // 在执行下一个节点的 invoke 方法前调用 onInvoke 回调方法就能实现调用前的回调 。
         fireInvokeCallback(invoker, invocation);
         // need to configure if there's return value before the invocation in order to help invoker to judge if it's
         // necessary to return future.
         Result result = invoker.invoke(invocation);
         if (isAsync) {
+            // 异步调用 ， 会通过 CompletableFuture 的 thenApply 方法来执行 onthrow 或 onreturn 的回调
             asyncCallback(invoker, invocation);
         } else {
+            // 直接判断返回的 result 是否有异常 ， 有异常则同步调用 onthrow 回调方法 ， 没有异常则同步调用 onreturn 回调方法
             syncCallback(invoker, invocation, result);
         }
         return result;
@@ -101,14 +106,18 @@ public class FutureFilter implements Filter {
     }
 
     private void fireInvokeCallback(final Invoker<?> invoker, final Invocation invocation) {
-        final Method onInvokeMethod = (Method) StaticContext.getSystemContext().get(StaticContext.getKey(invoker.getUrl(), invocation.getMethodName(), Constants.ON_INVOKE_METHOD_KEY));
-        final Object onInvokeInst = StaticContext.getSystemContext().get(StaticContext.getKey(invoker.getUrl(), invocation.getMethodName(), Constants.ON_INVOKE_INSTANCE_KEY));
+        final Method onInvokeMethod = (Method) StaticContext.getSystemContext()
+                .get(StaticContext.getKey(invoker.getUrl(), invocation.getMethodName(), Constants.ON_INVOKE_METHOD_KEY));
+        final Object onInvokeInst = StaticContext.getSystemContext()
+                .get(StaticContext.getKey(invoker.getUrl(), invocation.getMethodName(), Constants.ON_INVOKE_INSTANCE_KEY));
 
         if (onInvokeMethod == null && onInvokeInst == null) {
             return;
         }
         if (onInvokeMethod == null || onInvokeInst == null) {
-            throw new IllegalStateException("service:" + invoker.getUrl().getServiceKey() + " has a onreturn callback config , but no such " + (onInvokeMethod == null ? "method" : "instance") + " found. url:" + invoker.getUrl());
+            throw new IllegalStateException("service:" + invoker.getUrl().getServiceKey() +
+                    " has a onreturn callback config , but no such " + (onInvokeMethod == null ? "method" : "instance") +
+                    " found. url:" + invoker.getUrl());
         }
         if (!onInvokeMethod.isAccessible()) {
             onInvokeMethod.setAccessible(true);

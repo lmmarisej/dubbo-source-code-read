@@ -18,6 +18,9 @@ package com.alibaba.dubbo.rpc.filter.tps;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * 包装了令牌刷新时间间隔 、 每次发放的令牌数等属性
+ */
 class StatItem {
 
     private String name;
@@ -48,6 +51,7 @@ class StatItem {
         int value = token.get();
         boolean flag = false;
         while (value > 0 && !flag) {
+            // 允许，将令牌减一
             flag = token.compareAndSet(value, value - 1);
             value = token.get();
         }

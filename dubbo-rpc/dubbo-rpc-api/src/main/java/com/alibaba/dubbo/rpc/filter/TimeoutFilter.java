@@ -30,6 +30,8 @@ import java.util.Arrays;
 
 /**
  * Log any invocation timeout, but don't stop server from running
+ *
+ * 记录每个 Invoker 的调用时间 ， 如果超过了接口设置的 timeout 值 ， 则会打印一条警告日志 ， 并不会干扰业务的正常运行 。
  */
 @Activate(group = Constants.PROVIDER)
 public class TimeoutFilter implements Filter {
@@ -40,10 +42,12 @@ public class TimeoutFilter implements Filter {
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         long start = System.currentTimeMillis();
         Result result = invoker.invoke(invocation);
-        long elapsed = System.currentTimeMillis() - start;
+        long elapsed = System.currentTimeMillis() - start;      // 调用持续时间
+        // 如果超时
         if (invoker.getUrl() != null
-                && elapsed > invoker.getUrl().getMethodParameter(invocation.getMethodName(),
+                && elapsed > invoker.getUrl().getMethodParameter(invocation.getMethodName(),    // 获取Url上的超时配置
                 "timeout", Integer.MAX_VALUE)) {
+            // 打印警告日志
             if (logger.isWarnEnabled()) {
                 logger.warn("invoke time out. method: " + invocation.getMethodName()
                         + " arguments: " + Arrays.toString(invocation.getArguments()) + " , url is "

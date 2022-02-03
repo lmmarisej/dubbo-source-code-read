@@ -31,6 +31,8 @@ import java.util.Set;
 
 /**
  * DeprecatedInvokerFilter
+ *
+ * 检查所有调用 ，如果方法已经通过 dubbo:parameter 设置了 deprecated=true，则会打印一段 ERROR 级别的日志 。
  */
 @Activate(group = Constants.CONSUMER, value = Constants.DEPRECATED_KEY)
 public class DeprecatedFilter implements Filter {

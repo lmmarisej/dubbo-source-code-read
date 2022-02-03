@@ -21,6 +21,9 @@ import com.alibaba.dubbo.config.ReferenceConfig;
 
 import java.lang.reflect.Method;
 
+/**
+ * 方法在服务引用初始化的时候就会把配置文件中的回调方法保存到 ConsumerMethodModel 中 ， 后续使用的时候,直接取出来就可以调用 。
+ */
 public class ConsumerMethodModel {
     private final Method method;
     private final ReferenceConfig metadata;

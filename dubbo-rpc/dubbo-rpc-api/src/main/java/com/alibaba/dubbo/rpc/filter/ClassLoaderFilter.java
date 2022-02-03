@@ -26,13 +26,17 @@ import com.alibaba.dubbo.rpc.RpcException;
 
 /**
  * ClassLoaderInvokerFilter
+ *
+ * 切换当前工作线程的类加载器到接口的类加载器 ， 以便和接口的类加载器的上下文一起工作 。
  */
 @Activate(group = Constants.PROVIDER, order = -30000)
 public class ClassLoaderFilter implements Filter {
 
+    // 类加载器A加载类ClassA，类加载器B加载ClassB，类ClassA是无法访问ClassB的
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         ClassLoader ocl = Thread.currentThread().getContextClassLoader();
+        // 将线程类加载器切换为Invoker中包装的加载接口的类加载器，再调用接口的实现类
         Thread.currentThread().setContextClassLoader(invoker.getInterface().getClassLoader());
         try {
             return invoker.invoke(invocation);

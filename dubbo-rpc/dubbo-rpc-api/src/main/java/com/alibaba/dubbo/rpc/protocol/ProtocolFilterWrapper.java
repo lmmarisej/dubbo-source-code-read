@@ -31,6 +31,8 @@ import java.util.List;
 
 /**
  * ListenerProtocol
+ *
+ * 实现了过滤器链的组装。
  */
 public class ProtocolFilterWrapper implements Protocol {
 
@@ -43,16 +45,20 @@ public class ProtocolFilterWrapper implements Protocol {
         this.protocol = protocol;
     }
 
+    /**
+     * 组装整个过滤器链
+     */
     private static <T> Invoker<T> buildInvokerChain(final Invoker<T> invoker, String key, String group) {
         // 真正的服务对象
         Invoker<T> last = invoker;
+        // 获取所有的过滤器并遍历 。
         List<Filter> filters = ExtensionLoader.getExtensionLoader(Filter.class).getActivateExtension(invoker.getUrl(), key, group);
         if (!filters.isEmpty()) {
             // 倒序遍历，构建拦截器链，将服务对象放入拦截器链尾
             for (int i = filters.size() - 1; i >= 0; i--) {
                 final Filter filter = filters.get(i);
                 final Invoker<T> next = last;
-                // 将filter包装为invoker
+                // 使用装饰器模式， 增强原有 Invoker, 组装过滤器链 。
                 last = new Invoker<T>() {
 
                     @Override
