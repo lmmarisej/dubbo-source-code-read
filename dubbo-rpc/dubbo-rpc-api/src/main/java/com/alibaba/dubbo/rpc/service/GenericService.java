@@ -19,6 +19,8 @@ package com.alibaba.dubbo.rpc.service;
 /**
  * Generic service interface
  *
+ * 泛化引用，为我们提供一种不需要依赖 API 接口的方式进行服务调用
+ *
  * @export
  */
 public interface GenericService {

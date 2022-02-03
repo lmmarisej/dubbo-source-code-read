@@ -49,7 +49,7 @@ public interface Result {
     boolean hasException();
 
     /**
-     * Recreate.
+     * Recreate.        如果响应中有异常标识，将其转换为Java异常再抛出。
      * <p>
      * <code>
      * if (hasException()) {

@@ -47,6 +47,10 @@ import java.lang.reflect.Method;
 
 /**
  * GenericInvokerFilter.
+ *
+ * 把RpcInvocation中传递过来的`参数类型`和`参数值`提取出来。根据传递过来的接口名、方法名和参数类型查找服务端被调用的方法。
+ * 提取真实方法参数类型(可能包含泛化类型)，然后将参数值做Java类型转换。
+ * 用解析后的参数值构造新的RpcInvocation对象发起调用。
  */
 @Activate(group = Constants.PROVIDER, order = -20000)
 public class GenericFilter implements Filter {
