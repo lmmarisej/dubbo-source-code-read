@@ -23,6 +23,7 @@ import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.support.RpcUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -56,6 +57,7 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
 
     private static final class ConsistentHashSelector<T> {
 
+        // TreeMap数据结构具有排序功能，可以利用它的排序来维持hash环的单调性
         private final TreeMap<Long, Invoker<T>> virtualInvokers;    // 用于缓存 Invoker 的虚拟节点，即多个 hash 值映射到同一个 Invoker 。
 
         private final int replicaNumber;        // 用于记录每个 Invoker 虚拟节点的个数。
@@ -72,7 +74,7 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
             // 获取消费端 Invoker 的 URL
             URL url = invokers.get(0).getUrl();
             // 从配置中获取虚拟节点数（hash.nodes 参数）以及参与 hash 计算的参数下标（hash.arguments 参数）
-            this.replicaNumber = url.getMethodParameter(methodName, "hash.nodes", 160);
+            this.replicaNumber = url.getMethodParameter(methodName, "hash.nodes", 160);     // 默认160个虚拟节点
             // 对参与 hash  计算的参数下标进行解析，然后存放到 argumentIndex 数组中
             String[] index = Constants.COMMA_SPLIT_PATTERN.split(url.getMethodParameter(methodName, "hash.arguments", "0"));
             argumentIndex = new int[index.length];
@@ -97,7 +99,7 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
             // 将参与一致性 Hash 的参数拼接到一起
             String key = toKey(invocation.getArguments());
             byte[] digest = md5(key);              // 对 key 进行 md5 运算
-            return selectForKey(hash(digest, 0));
+            return selectForKey(hash(digest, 0));       // 根据hash选择对应的服务提供者
         }
 
         // 将参与 Hash 计算的参数索引对应的参数值进行拼接。默认对第一个参数进行 Hash 运算。
@@ -141,11 +143,7 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
             }
             md5.reset();
             byte[] bytes;
-            try {
-                bytes = value.getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
+            bytes = value.getBytes(StandardCharsets.UTF_8);
             md5.update(bytes);
             return md5.digest();
         }

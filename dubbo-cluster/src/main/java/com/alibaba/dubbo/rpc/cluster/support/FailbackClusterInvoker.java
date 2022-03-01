@@ -44,6 +44,7 @@ import java.util.concurrent.TimeUnit;
  *
  * <a href="http://en.wikipedia.org/wiki/Failback">Failback</a>
  *
+ * 失败自动恢复，后台记录失败请求，定时重发。
  */
 public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
 
@@ -92,13 +93,12 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
         if (failed.size() == 0) {
             return;
         }
-        for (Map.Entry<Invocation, AbstractClusterInvoker<?>> entry : new HashMap<Invocation, AbstractClusterInvoker<?>>(
-                failed).entrySet()) {
+        for (Map.Entry<Invocation, AbstractClusterInvoker<?>> entry : new HashMap<Invocation, AbstractClusterInvoker<?>>(failed).entrySet()) {
             Invocation invocation = entry.getKey();
             Invoker<?> invoker = entry.getValue();
             try {
                 invoker.invoke(invocation);
-                failed.remove(invocation);
+                failed.remove(invocation);      // 调用成功，将该任务从任务队列移除
             } catch (Throwable e) {
                 logger.error("Failed retry to invoke method " + invocation.getMethodName() + ", waiting again.", e);
             }
@@ -114,7 +114,7 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
         } catch (Throwable e) {
             logger.error("Failback to invoke method " + invocation.getMethodName() + ", wait for retry in background. Ignored exception: "
                     + e.getMessage() + ", ", e);
-            addFailed(invocation, this);
+            addFailed(invocation, this);        // 加入延迟任务队列，循环处理
             return new RpcResult(); // ignore
         }
     }

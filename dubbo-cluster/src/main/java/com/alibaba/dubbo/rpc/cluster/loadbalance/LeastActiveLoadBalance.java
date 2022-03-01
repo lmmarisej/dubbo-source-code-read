@@ -59,8 +59,7 @@ public class LeastActiveLoadBalance extends AbstractLoadBalance {
                 leastIndexs[leastCount++] = i; // Record index number of this invoker
                 totalWeight += afterWarmup; // Add this invoker's weight to totalWeight.
                 // If every invoker has the same weight?
-                if (sameWeight && i > 0
-                        && afterWarmup != firstWeight) {
+                if (sameWeight && afterWarmup != firstWeight) {
                     sameWeight = false;
                 }
             }

@@ -68,7 +68,7 @@ public class ForkingClusterInvoker<T> extends AbstractClusterInvoker<T> {
                 selected = new ArrayList<Invoker<T>>();
                 for (int i = 0; i < forks; i++) {
                     // TODO. Add some comment here, refer chinese version for more details.
-                    Invoker<T> invoker = select(loadbalance, invocation, invokers, selected);
+                    Invoker<T> invoker = select(loadbalance, invocation, invokers, selected);       // 负载均衡选择一个服务
                     if (!selected.contains(invoker)) {//Avoid add the same invoker several times.
                         selected.add(invoker);
                     }
@@ -77,7 +77,7 @@ public class ForkingClusterInvoker<T> extends AbstractClusterInvoker<T> {
             RpcContext.getContext().setInvokers((List) selected);
             final AtomicInteger count = new AtomicInteger();
             final BlockingQueue<Object> ref = new LinkedBlockingQueue<Object>();
-            for (final Invoker<T> invoker : selected) {
+            for (final Invoker<T> invoker : selected) {     // 对选出来的几个服务同时调用
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {

@@ -34,6 +34,7 @@ import java.util.List;
  *
  * <a href="http://en.wikipedia.org/wiki/Fail-safe">Fail-safe</a>
  *
+ * 出现异常时，直接忽略。
  */
 public class FailsafeClusterInvoker<T> extends AbstractClusterInvoker<T> {
     private static final Logger logger = LoggerFactory.getLogger(FailsafeClusterInvoker.class);
@@ -49,7 +50,7 @@ public class FailsafeClusterInvoker<T> extends AbstractClusterInvoker<T> {
             Invoker<T> invoker = select(loadbalance, invocation, invokers, null);
             return invoker.invoke(invocation);
         } catch (Throwable e) {
-            logger.error("Failsafe ignore exception: " + e.getMessage(), e);
+            logger.error("Failsafe ignore exception: " + e.getMessage(), e);        // 不会把异常抛给调用者
             return new RpcResult(); // ignore  异常返回空对象
         }
     }

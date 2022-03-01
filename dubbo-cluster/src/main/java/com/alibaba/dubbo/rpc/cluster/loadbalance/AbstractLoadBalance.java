@@ -37,7 +37,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
         // 计算权重，简化为： (uptime/warmup) * weight。随着服务运行时间 uptime 增大，权重计算值 ww 会慢慢接近配置值 weight。
         int ww = (int) ((float) uptime / ((float) warmup / (float) weight));
         // 权重范围为 [0,weight] 之间
-        return ww < 1 ? 1 : (ww > weight ? weight : ww);
+        return ww < 1 ? 1 : (Math.min(ww, weight));
     }
 
     @Override

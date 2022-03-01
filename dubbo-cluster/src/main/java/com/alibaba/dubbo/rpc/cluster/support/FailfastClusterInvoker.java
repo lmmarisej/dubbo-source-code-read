@@ -33,6 +33,7 @@ import java.util.List;
  *
  * <a href="http://en.wikipedia.org/wiki/Fail-fast">Fail-fast</a>
  *
+ * 只发起一次调用，失败立即报错。
  */
 public class FailfastClusterInvoker<T> extends AbstractClusterInvoker<T> {
 
@@ -43,7 +44,7 @@ public class FailfastClusterInvoker<T> extends AbstractClusterInvoker<T> {
     @Override
     public Result doInvoke(Invocation invocation, List<Invoker<T>> invokers, LoadBalance loadbalance) throws RpcException {
         checkInvokers(invokers, invocation);
-        // 负载均衡
+        // 负载均衡选择一个服务提供者
         Invoker<T> invoker = select(loadbalance, invocation, invokers, null);
         try {
             return invoker.invoke(invocation);

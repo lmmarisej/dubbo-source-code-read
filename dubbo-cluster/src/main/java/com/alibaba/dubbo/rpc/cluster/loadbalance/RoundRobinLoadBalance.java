@@ -41,12 +41,12 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
     public static final String NAME = "roundrobin";
 
     // 长时间未更新的阈值 60 s
-    private static int RECYCLE_PERIOD = 60000;      // 监控 Invoker 对应的 WeightedRoundRobin 的更新频率。
+    private static final int RECYCLE_PERIOD = 60000;      // 监控 Invoker 对应的 WeightedRoundRobin 的更新频率。
 
     // 每个 Invoker 对应的对象，加权轮流调度器
     protected static class WeightedRoundRobin {
         private int weight;     // 服务提供者配置权重，在负载均衡过程不会变化(忽略启动预热)
-        private AtomicLong current = new AtomicLong(0);     // 服务提供者当前权重，在负载均衡过程会动态调整，初始值为 0
+        private final AtomicLong current = new AtomicLong(0);     // 服务提供者当前权重，在负载均衡过程会动态调整，初始值为 0
         private long lastUpdate;
         public int getWeight() {
             return weight;
@@ -76,8 +76,8 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
      * key2: URL串
      * value: WeightedRoundRobin
      */
-    private ConcurrentMap<String, ConcurrentMap<String, WeightedRoundRobin>> methodWeightMap = new ConcurrentHashMap<String, ConcurrentMap<String, WeightedRoundRobin>>();
-    private AtomicBoolean updateLock = new AtomicBoolean();
+    private final ConcurrentMap<String, ConcurrentMap<String, WeightedRoundRobin>> methodWeightMap = new ConcurrentHashMap<String, ConcurrentMap<String, WeightedRoundRobin>>();
+    private final AtomicBoolean updateLock = new AtomicBoolean();
     
     /**
      * get invoker addr list cached for specified invocation
@@ -101,6 +101,7 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
     protected <T> Invoker<T> doSelect(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         // 获取请求的完整方法名
         String key = invokers.get(0).getUrl().getServiceKey() + "." + invocation.getMethodName();
+        // 该方法对应的每个服务提供者WeightedRoundRobin对象组成的map
         ConcurrentMap<String, WeightedRoundRobin> map = methodWeightMap.get(key);
         if (map == null) {
             methodWeightMap.putIfAbsent(key, new ConcurrentHashMap<String, WeightedRoundRobin>());
@@ -149,13 +150,7 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
                     // copy -> modify -> update reference
                     ConcurrentMap<String, WeightedRoundRobin> newMap = new ConcurrentHashMap<String, WeightedRoundRobin>();
                     newMap.putAll(map);
-                    Iterator<Entry<String, WeightedRoundRobin>> it = newMap.entrySet().iterator();
-                    while (it.hasNext()) {
-                        Entry<String, WeightedRoundRobin> item = it.next();
-                        if (now - item.getValue().getLastUpdate() > RECYCLE_PERIOD) {
-                            it.remove();
-                        }
-                    }
+                    newMap.entrySet().removeIf(item -> now - item.getValue().getLastUpdate() > RECYCLE_PERIOD);
                     methodWeightMap.put(key, newMap);
                 } finally {
                     updateLock.set(false);
