@@ -290,12 +290,12 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
     void checkMock(Class<?> interfaceClass) {
-        if (ConfigUtils.isEmpty(mock)) {
+        if (ConfigUtils.isEmpty(mock)) {        // 没设置mock
             return;
         }
 
-        String normalizedMock = MockInvoker.normalizeMock(mock);
-        if (normalizedMock.startsWith(Constants.RETURN_PREFIX)) {
+        String normalizedMock = MockInvoker.normalizeMock(mock);        // 获取格式化mock方式
+        if (normalizedMock.startsWith(Constants.RETURN_PREFIX)) {       // mock值合法性检查
             normalizedMock = normalizedMock.substring(Constants.RETURN_PREFIX.length()).trim();
             try {
                 MockInvoker.parseMockValue(normalizedMock);
@@ -314,7 +314,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
                 }
             }
         } else {
-            MockInvoker.getMockObject(normalizedMock, interfaceClass);
+            MockInvoker.getMockObject(normalizedMock, interfaceClass);      // 检查mock接口实现类是否符合规则
         }
     }
 

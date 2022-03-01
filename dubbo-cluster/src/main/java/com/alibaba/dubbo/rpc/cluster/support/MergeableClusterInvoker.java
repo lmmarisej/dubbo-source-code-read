@@ -61,6 +61,7 @@ public class MergeableClusterInvoker<T> implements Invoker<T> {
         this.directory = directory;
     }
 
+    // 包含了降级策略，mock是在发起远程服务调用之前进行
     @Override
     @SuppressWarnings("rawtypes")
     public Result invoke(final Invocation invocation) throws RpcException {

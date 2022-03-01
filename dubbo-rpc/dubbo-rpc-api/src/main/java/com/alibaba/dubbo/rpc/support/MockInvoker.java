@@ -119,6 +119,7 @@ final public class MockInvoker<T> implements Invoker<T> {
         }
         // 2 标准化 mock 配置项
         mock = normalizeMock(URL.decode(mock));
+        // 根据不同的mock策略，返回不同的值
         // 3 mock 值以 return 开头，返回对应值的 RpcResult 对象
         if (mock.startsWith(Constants.RETURN_PREFIX)) {
             mock = mock.substring(Constants.RETURN_PREFIX.length()).trim();
@@ -181,6 +182,7 @@ final public class MockInvoker<T> implements Invoker<T> {
         }
     }
 
+    // 缓存含有mock实现类对应invoker对象，直接返回，否则使用getMockObject方法创建对象实例并缓存，最后返回
     // 获取 mock (处理后的) 对应的 Invoker
     @SuppressWarnings("unchecked")
     private Invoker<T> getInvoker(String mock) {
@@ -206,7 +208,7 @@ final public class MockInvoker<T> implements Invoker<T> {
     public static Object getMockObject(String mockService, Class serviceType) {
         // 如果 mockService 为 true 或 default ，则在服务接口后添加 Mock 字符串，作为服务接口的 Mock 实现
         if (ConfigUtils.isDefault(mockService)) {
-            mockService = serviceType.getName() + "Mock";
+            mockService = serviceType.getName() + "Mock";       // 也就是说，实现类的命名规则有限制
         }
 
         // 反射获取 Mock 实现类

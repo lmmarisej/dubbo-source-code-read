@@ -88,7 +88,7 @@ public class MockClusterInvoker<T> implements Invoker<T> {
             // 3 mock 配置项为 force，表示强制 Mock，直接调用 doMockInvoke() 方法执行 Mock 机制
             result = doMockInvoke(invocation, null);
         } else {
-            //fail-mock
+            //fail-mock    远程失败则mock
             try {
                 // 4 如果 mock 配置项配置的不是 force，则执行 默认行为。即先调用 Invoker，调用失败再执行 Mock 行为。
                 result = this.invoker.invoke(invocation);
