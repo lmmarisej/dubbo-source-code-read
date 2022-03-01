@@ -30,6 +30,7 @@ import java.util.Map;
 /**
  * Netty server can't support @Context injection of servlet objects since it's not a servlet container
  *
+ * 服务提供用来接收客户端的链接请求。
  */
 public class NettyServer extends BaseRestServer {
 

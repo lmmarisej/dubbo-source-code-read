@@ -23,7 +23,7 @@ import com.alibaba.dubbo.remoting.Dispatcher;
 /**
  * In addition to sending all the use thread pool processing
  *
- * 只在线程池处理接收请求，其它事件在IO线程池中。
+ * 只在线程池处理接收请求，其它响应、连接、断开、心跳事件在IO线程池中。
  */
 public class ExecutionDispatcher implements Dispatcher {
 

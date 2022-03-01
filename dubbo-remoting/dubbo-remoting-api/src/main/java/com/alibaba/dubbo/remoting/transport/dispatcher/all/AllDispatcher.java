@@ -23,7 +23,7 @@ import com.alibaba.dubbo.remoting.Dispatcher;
 /**
  * default thread pool configure
  *
- * 所有IO事件都派发到线程池，包括请求，响应，连接事件，断开事件，心跳等。
+ * 所有IO事件都派发到业务线程池，包括请求，响应，连接事件，断开事件，心跳等。
  */
 public class AllDispatcher implements Dispatcher {
 

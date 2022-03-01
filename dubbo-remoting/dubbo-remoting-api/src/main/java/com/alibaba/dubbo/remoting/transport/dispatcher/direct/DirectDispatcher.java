@@ -23,7 +23,7 @@ import com.alibaba.dubbo.remoting.Dispatcher;
 /**
  * Direct dispatcher
  *
- * 所有方法和事件处理都在IO线程中。
+ * 所有方法和事件处理都不派发到业务线程池，全部在在IO线程中直接执行。
  */
 public class DirectDispatcher implements Dispatcher {
 
@@ -31,7 +31,7 @@ public class DirectDispatcher implements Dispatcher {
 
     @Override
     public ChannelHandler dispatch(ChannelHandler handler, URL url) {
-        return handler;
+        return handler;     // 直接在IO线程执行
     }
 
 }

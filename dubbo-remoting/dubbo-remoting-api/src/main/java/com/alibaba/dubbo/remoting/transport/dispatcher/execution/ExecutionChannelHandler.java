@@ -40,6 +40,7 @@ public class ExecutionChannelHandler extends WrappedChannelHandler {
         super(handler, url);
     }
 
+    // 只把请求类消息派发到业务线程池处理
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
         ExecutorService cexecutor = getExecutorService();
