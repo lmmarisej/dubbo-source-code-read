@@ -56,6 +56,8 @@ import java.util.Set;
 /**
  * RegistryDirectory
  *
+ * 内部维护了所有服务提供者的invoker列表。
+ *
  * 会自动从注册中心拉取信息，更新Invoker列表、配置信息、路由列表。
  */
 public class RegistryDirectory<T> extends AbstractDirectory<T> implements NotifyListener {
@@ -237,15 +239,14 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
             }
         }
         // configurators
-        if (configuratorUrls != null && !configuratorUrls.isEmpty()) {
+        if (!configuratorUrls.isEmpty()) {
             this.configurators = toConfigurators(configuratorUrls);
         }
         // routers
-        if (routerUrls != null && !routerUrls.isEmpty()) {
+        if (!routerUrls.isEmpty()) {
             List<Router> routers = toRouters(routerUrls);
-            if (routers != null) { // null - do nothing
-                setRouters(routers);
-            }
+            // null - do nothing
+            setRouters(routers);
         }
         List<Configurator> localConfigurators = this.configurators; // local reference
         // merge override parameters

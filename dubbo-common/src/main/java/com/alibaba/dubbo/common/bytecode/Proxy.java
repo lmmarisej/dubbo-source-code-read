@@ -35,6 +35,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Proxy.
+ *
+ * 能对消费者和生产者进行代理。
  */
 
 public abstract class Proxy {

@@ -74,6 +74,7 @@ public class NettyClient extends AbstractClient {
             public ChannelPipeline getPipeline() {
                 NettyCodecAdapter adapter = new NettyCodecAdapter(getCodec(), getUrl(), NettyClient.this);
                 ChannelPipeline pipeline = Channels.pipeline();
+                // 将编码解码器和自定义处理器添加到连接Channel对应的管线里
                 pipeline.addLast("decoder", adapter.getDecoder());
                 pipeline.addLast("encoder", adapter.getEncoder());
                 pipeline.addLast("handler", nettyHandler);
@@ -83,7 +84,7 @@ public class NettyClient extends AbstractClient {
     }
 
     @Override
-    protected void doConnect() throws Throwable {
+    protected void doConnect() throws Throwable {       // 建立TCP连接
         long start = System.currentTimeMillis();
         ChannelFuture future = bootstrap.connect(getConnectAddress());
         try {
