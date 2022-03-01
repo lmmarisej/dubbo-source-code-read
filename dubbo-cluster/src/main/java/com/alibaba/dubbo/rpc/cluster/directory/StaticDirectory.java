@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * StaticDirectory
  *
- * 用于将传入的 Invoker 集合封装成静态的 Directory 对象。
+ * 当消费端使用了多注册中心时，把所有的服务注册中心的invoker列表汇集到一个invoker列表中。
  */
 public class StaticDirectory<T> extends AbstractDirectory<T> {
 

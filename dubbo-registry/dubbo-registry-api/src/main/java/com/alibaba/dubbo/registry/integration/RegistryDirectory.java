@@ -56,9 +56,10 @@ import java.util.Set;
 /**
  * RegistryDirectory
  *
- * 内部维护了所有服务提供者的invoker列表。
+ * 内部维护了所有服务提供者的invoker列表，根据服务注册中心的推送而变化。
  *
- * 会自动从注册中心拉取信息，更新Invoker列表、配置信息、路由列表。
+ * 服务消费方get时创建RegistryDirectory，会自动从注册中心拉取信息，更新Invoker地址列表、路由列表、动态配置信息等，当服务提供者信息发生变化时，
+ * RegistryDirectory会动态地得到变化通知，并自动更新。
  */
 public class RegistryDirectory<T> extends AbstractDirectory<T> implements NotifyListener {
 
@@ -217,12 +218,13 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         }
     }
 
-    // 监听到配置中西对应的url变化。然后更新本次配置参数
+    // 监听到配置中心对应的url变化。然后更新本次配置参数
     @Override
     public synchronized void notify(List<URL> urls) {
-        List<URL> invokerUrls = new ArrayList<URL>();
-        List<URL> routerUrls = new ArrayList<URL>();
-        List<URL> configuratorUrls = new ArrayList<URL>();
+        List<URL> invokerUrls = new ArrayList<URL>();           // 服务提供者列表
+        List<URL> routerUrls = new ArrayList<URL>();            // 路由规则配置信息
+        List<URL> configuratorUrls = new ArrayList<URL>();      // 动态配置信息，比如服务降级
+        //对URL进行过滤，并对过滤后的URL根据不同类型的信息进行分类
         for (URL url : urls) {
             String protocol = url.getProtocol();
             String category = url.getParameter(Constants.CATEGORY_KEY, Constants.DEFAULT_CATEGORY);
@@ -270,12 +272,12 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
      */
     // TODO: 2017/8/31 FIXME The thread pool should be used to refresh the address, otherwise the task may be accumulated.
     private void refreshInvoker(List<URL> invokerUrls) {
-        if (invokerUrls != null && invokerUrls.size() == 1 && invokerUrls.get(0) != null
+        if (invokerUrls != null && invokerUrls.size() == 1 && invokerUrls.get(0) != null        // 只有一个服务提供者
                 && Constants.EMPTY_PROTOCOL.equals(invokerUrls.get(0).getProtocol())) {
             this.forbidden = true; // Forbid to access
             this.methodInvokerMap = null; // Set the method invoker map to null
             destroyAllInvokers(); // Close all invokers
-        } else {
+        } else {        // 多个提供者时
             this.forbidden = false; // Allow to access
             Map<String, Invoker<T>> oldUrlInvokerMap = this.urlInvokerMap; // local reference
             if (invokerUrls.isEmpty() && this.cachedInvokerUrls != null) {
@@ -487,6 +489,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         return providerUrl;
     }
 
+    // 根据路由规则信息和invokers列表来提供服务
     private List<Invoker<T>> route(List<Invoker<T>> invokers, String method) {
         Invocation invocation = new RpcInvocation(method, new Class<?>[0], new Object[0]);
         List<Router> routers = getRouters();
