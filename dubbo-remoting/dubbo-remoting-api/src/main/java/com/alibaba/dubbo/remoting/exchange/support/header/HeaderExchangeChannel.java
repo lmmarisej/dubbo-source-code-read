@@ -111,14 +111,14 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         req.setVersion(Version.getProtocolVersion());
         req.setTwoWay(true);
         req.setData(request);
-        DefaultFuture future = new DefaultFuture(channel, req, timeout);
+        DefaultFuture future = new DefaultFuture(channel, req, timeout);        // 构造一个句柄，用于存储异步调用的结果
         try {
-            channel.send(req);
+            channel.send(req);          // 发送请求到远端，不阻塞，立即返回
         } catch (RemotingException e) {
             future.cancel();
             throw e;
         }
-        return future;
+        return future;      // 返回Future
     }
 
     @Override

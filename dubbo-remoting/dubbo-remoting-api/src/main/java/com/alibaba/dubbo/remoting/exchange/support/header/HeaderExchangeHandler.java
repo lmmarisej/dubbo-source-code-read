@@ -102,8 +102,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
         Object msg = req.getData();
         try {
             // handle data.
-            // 触发方法调用
-            Object result = handler.reply(channel, msg);
+            Object result = handler.reply(channel, msg);        // 触发方法调用
             res.setStatus(Response.OK);
             res.setResult(result);
         } catch (Throwable e) {
@@ -182,7 +181,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
                     handlerEvent(channel, request);
                 } else {
                     if (request.isTwoWay()) {
-                        // 处理请求报文
+                        // 处理需要有返回值的请求
                         Response response = handleRequest(exchangeChannel, request);
                         channel.send(response);     // 处理方法调用并返回给客户端
                     } else {
