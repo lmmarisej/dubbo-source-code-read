@@ -31,14 +31,18 @@ import java.util.concurrent.atomic.AtomicLong;
  * @see com.alibaba.dubbo.rpc.filter.ActiveLimitFilter
  * @see com.alibaba.dubbo.rpc.filter.ExecuteLimitFilter
  * @see com.alibaba.dubbo.rpc.cluster.loadbalance.LeastActiveLoadBalance
+ *
+ * 统计远程调用状态。
  */
 public class RpcStatus {
 
+    // 存储对应类的并发状态
     private static final ConcurrentMap<String, RpcStatus> SERVICE_STATISTICS = new ConcurrentHashMap<String, RpcStatus>();
 
+    // 存储类下的某个方法并发状态
     private static final ConcurrentMap<String, ConcurrentMap<String, RpcStatus>> METHOD_STATISTICS = new ConcurrentHashMap<String, ConcurrentMap<String, RpcStatus>>();
     private final ConcurrentMap<String, Object> values = new ConcurrentHashMap<String, Object>();
-    private final AtomicInteger active = new AtomicInteger();
+    private final AtomicInteger active = new AtomicInteger();       // 当前激活并发数
     private final AtomicLong total = new AtomicLong();
     private final AtomicInteger failed = new AtomicInteger();
     private final AtomicLong totalElapsed = new AtomicLong();
@@ -79,9 +83,7 @@ public class RpcStatus {
     }
 
     /**
-     * @param url
-     * @param methodName
-     * @return status
+     * 获取方法对应的RpcStatus。
      */
     public static RpcStatus getStatus(URL url, String methodName) {
         String uri = url.toIdentityString();
@@ -110,7 +112,7 @@ public class RpcStatus {
     }
 
     /**
-     * @param url
+     * 递增方法对应的激活并发数。
      */
     public static void beginCount(URL url, String methodName) {
         beginCount(getStatus(url));
@@ -122,15 +124,14 @@ public class RpcStatus {
     }
 
     /**
-     * @param url
-     * @param elapsed
-     * @param succeeded
+     * 将类和方法并发数一起减少。
      */
     public static void endCount(URL url, String methodName, long elapsed, boolean succeeded) {
         endCount(getStatus(url), elapsed, succeeded);
         endCount(getStatus(url, methodName), elapsed, succeeded);
     }
 
+    // 原子性递减
     private static void endCount(RpcStatus status, long elapsed, boolean succeeded) {
         status.active.decrementAndGet();
         status.total.incrementAndGet();
@@ -153,9 +154,6 @@ public class RpcStatus {
 
     /**
      * set value.
-     *
-     * @param key
-     * @param value
      */
     public void set(String key, Object value) {
         values.put(key, value);

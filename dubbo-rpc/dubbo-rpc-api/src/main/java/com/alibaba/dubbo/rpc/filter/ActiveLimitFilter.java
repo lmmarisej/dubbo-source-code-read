@@ -29,7 +29,7 @@ import com.alibaba.dubbo.rpc.RpcStatus;
 /**
  * LimitInvokerFilter
  *
- * 消费者端的过滤器 ， 限制的是客户端的并发数 。
+ * 消费者端的过滤器，限制的是客户端的并发数。
  */
 @Activate(group = Constants.CONSUMER, value = Constants.ACTIVES_KEY)
 public class ActiveLimitFilter implements Filter {
@@ -39,20 +39,22 @@ public class ActiveLimitFilter implements Filter {
         // 获取参数 。 获取方法名 、 最大并发数等参数 ， 为下面的逻辑做准备 。
         URL url = invoker.getUrl();
         String methodName = invocation.getMethodName();
+        // 最大可并发数
         int max = invoker.getUrl().getMethodParameter(methodName, Constants.ACTIVES_KEY, 0);
-        RpcStatus count = RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName());
+        // 状态对象
+        final RpcStatus count = RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName());
         if (max > 0) {
             long timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, 0);
             long start = System.currentTimeMillis();
             long remain = timeout;
             int active = count.getActive();
-            if (active >= max) {
+            if (active >= max) {        // 是否超过
                 synchronized (count) {
                     while ((active = count.getActive()) >= max) {       // 限制满了
                         try {
-                            // 先等待直到超时 ， 因为请求是有 timeout 属性的 。
+                            // 先等待直到超时，因为请求是有 timeout 属性的
                             count.wait(remain);
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException ignored) {
                         }
                         // 超时检查
                         long elapsed = System.currentTimeMillis() - start;      // 从阻塞到醒来耗时
@@ -73,18 +75,19 @@ public class ActiveLimitFilter implements Filter {
             long begin = System.currentTimeMillis();
             RpcStatus.beginCount(url, methodName);
             try {
-                Result result = invoker.invoke(invocation);
+                Result result = invoker.invoke(invocation);     // 正常发起远程调用
                 // 计数器减一
                 RpcStatus.endCount(url, methodName, System.currentTimeMillis() - begin, true);
                 return result;
             } catch (RuntimeException t) {
+                // 计数器减一
                 RpcStatus.endCount(url, methodName, System.currentTimeMillis() - begin, false);
                 throw t;
             }
         } finally {
             if (max > 0) {
-                synchronized (count) {
-                    count.notify();     // 唤醒无法获取锁的阻塞的线程
+                synchronized (count) {  // notify 如果不跟synchronized结合就会造成 lost wake up，难以唤醒wait的线程
+                    count.notify();     // 调用的结束会激活被阻塞的并发调用
                 }
             }
         }

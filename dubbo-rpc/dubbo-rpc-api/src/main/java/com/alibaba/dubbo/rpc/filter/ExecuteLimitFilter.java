@@ -36,10 +36,11 @@ import java.util.concurrent.Semaphore;
 @Activate(group = Constants.PROVIDER, value = Constants.EXECUTES_KEY)
 public class ExecuteLimitFilter implements Filter {
 
+    // 服务端无需考虑溢出调用的超时，超过最大并发数的调用，服务端直接使用抛异常拒绝客户端的调用
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        URL url = invoker.getUrl();
-        String methodName = invocation.getMethodName();
+        URL url = invoker.getUrl();                         // 获取调用的URL
+        String methodName = invocation.getMethodName();     // 获取调用方法名称
         Semaphore executesLimit = null;
         boolean acquireResult = false;
         // 获取配置
@@ -64,8 +65,7 @@ public class ExecuteLimitFilter implements Filter {
         // 并发数计数器原子 +1
         RpcStatus.beginCount(url, methodName);
         try {
-            Result result = invoker.invoke(invocation);
-            return result;
+            return invoker.invoke(invocation);
         } catch (Throwable t) {
             isSuccess = false;
             if (t instanceof RuntimeException) {
