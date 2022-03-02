@@ -547,17 +547,15 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     // JVM 内部引用了自身服务，dubbo将远程服务调用使用injvm协议再暴露一次，避免远程调用
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void exportLocal(URL url) {
-        if (!Constants.LOCAL_PROTOCOL.equalsIgnoreCase(url.getProtocol())) {
+        if (!Constants.LOCAL_PROTOCOL.equalsIgnoreCase(url.getProtocol())) {        // 是injvm协议
             // 生成本地url
             URL local = URL.valueOf(url.toFullString())
                     .setProtocol(Constants.LOCAL_PROTOCOL)
                     .setHost(LOCALHOST)
                     .setPort(0);
             StaticContext.getContext(Constants.SERVICE_IMPL_CLASS).put(url.getServiceKey(), getServiceClass(ref));
-            // 转为Exporter
-            Exporter<?> exporter = protocol.export(
-                    // 先生成invoker
-                    proxyFactory.getInvoker(ref, (Class) interfaceClass, local));
+            // getInvoker获取代理服务实现类的Invoker类，再export导出服务
+            Exporter<?> exporter = protocol.export(proxyFactory.getInvoker(ref, (Class) interfaceClass, local));
             exporters.add(exporter);
             logger.info("Export dubbo service " + interfaceClass.getName() + " to local registry");
         }

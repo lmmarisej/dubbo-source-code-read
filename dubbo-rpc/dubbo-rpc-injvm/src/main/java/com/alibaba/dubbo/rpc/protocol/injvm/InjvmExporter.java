@@ -24,6 +24,8 @@ import java.util.Map;
 
 /**
  * InjvmExporter
+ *
+ * 本地服务本地暴露。
  */
 class InjvmExporter<T> extends AbstractExporter<T> {
 
@@ -35,7 +37,7 @@ class InjvmExporter<T> extends AbstractExporter<T> {
         super(invoker);
         this.key = key;
         this.exporterMap = exporterMap;
-        exporterMap.put(key, this);
+        exporterMap.put(key, this);         // 把自己放入缓存的暴露map
     }
 
     @Override

@@ -45,7 +45,7 @@ public interface Protocol {
      * export the same URL<br>  被暴露的方法必须幂等。
      * 3. Invoker instance is passed in by the framework, protocol needs not to care <br>  由框架传入，无需关心协议层。
      *
-     * 把一个服务暴露层远程invocation。
+     * 把一个服务暴露成远程invocation。
      *
      * @param <T>     Service type
      * @param invoker Service invoker

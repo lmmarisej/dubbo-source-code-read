@@ -31,6 +31,8 @@ import java.util.Map;
 
 /**
  * InjvmProtocol
+ *
+ * 不开启端口、不发起远程调用，只在JVM内关联，但执行Filter链。
  */
 public class InjvmProtocol extends AbstractProtocol implements Protocol {
 
@@ -53,6 +55,7 @@ public class InjvmProtocol extends AbstractProtocol implements Protocol {
     static Exporter<?> getExporter(Map<String, Exporter<?>> map, URL key) {
         Exporter<?> result = null;
 
+        // 缓存是否有本地导出服务
         if (!key.getServiceKey().contains("*")) {
             result = map.get(key.getServiceKey());
         } else {
@@ -68,9 +71,8 @@ public class InjvmProtocol extends AbstractProtocol implements Protocol {
 
         if (result == null) {
             return null;
-        } else if (ProtocolUtils.isGeneric(
-                result.getInvoker().getUrl().getParameter(Constants.GENERIC_KEY))) {
-            return null;
+        } else if (ProtocolUtils.isGeneric(result.getInvoker().getUrl().getParameter(Constants.GENERIC_KEY))) {
+            return null;        // 泛化调用直接返回null
         } else {
             return result;
         }
@@ -81,15 +83,18 @@ public class InjvmProtocol extends AbstractProtocol implements Protocol {
         return DEFAULT_PORT;
     }
 
+    // 先经过服务端调用链
     // 这个协议不会做端口暴露
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
-        return new InjvmExporter<T>(invoker, invoker.getUrl().getServiceKey(), exporterMap);
+        return new InjvmExporter<T>(invoker, invoker.getUrl().getServiceKey(), exporterMap);  // 将暴露的InjvmExporter存入exporterMap
     }
 
+    // 先经过消费端调用链
+    // 引用一个本地服务
     @Override
     public <T> Invoker<T> refer(Class<T> serviceType, URL url) throws RpcException {
-        return new InjvmInvoker<T>(serviceType, url, url.getServiceKey(), exporterMap);
+        return new InjvmInvoker<T>(serviceType, url, url.getServiceKey(), exporterMap);     // exporterMap保存了本地导出的本地服务
     }
 
     public boolean isInjvmRefer(URL url) {
