@@ -40,16 +40,11 @@ import java.io.IOException;
  */
 final class NettyCodecAdapter {
 
-    private final ChannelHandler encoder = new InternalEncoder();
-
-    private final ChannelHandler decoder = new InternalDecoder();
-
+    private final ChannelHandler encoder = new InternalEncoder();   // 请求编码
+    private final ChannelHandler decoder = new InternalDecoder();   // 响应解码
     private final Codec2 codec;
-
     private final URL url;
-
     private final int bufferSize;
-
     private final com.alibaba.dubbo.remoting.ChannelHandler handler;
 
     public NettyCodecAdapter(Codec2 codec, URL url, com.alibaba.dubbo.remoting.ChannelHandler handler) {
@@ -111,14 +106,12 @@ final class NettyCodecAdapter {
                     message = buffer;
                 } else {
                     int size = buffer.readableBytes() + input.readableBytes();
-                    message = com.alibaba.dubbo.remoting.buffer.ChannelBuffers.dynamicBuffer(
-                            size > bufferSize ? size : bufferSize);
+                    message = com.alibaba.dubbo.remoting.buffer.ChannelBuffers.dynamicBuffer(Math.max(size, bufferSize));
                     message.writeBytes(buffer, buffer.readableBytes());
                     message.writeBytes(input.toByteBuffer());
                 }
             } else {
-                message = com.alibaba.dubbo.remoting.buffer.ChannelBuffers.wrappedBuffer(
-                        input.toByteBuffer());
+                message = com.alibaba.dubbo.remoting.buffer.ChannelBuffers.wrappedBuffer(input.toByteBuffer());
             }
 
             NettyChannel channel = NettyChannel.getOrAddChannel(ctx.getChannel(), url, handler);
@@ -126,31 +119,32 @@ final class NettyCodecAdapter {
             int saveReaderIndex;
 
             try {
-                // decode object.
+                // decode object.     具体解析二进制位Dubbo协议帧对象
                 do {
-                    saveReaderIndex = message.readerIndex();
+                    saveReaderIndex = message.readerIndex();        // 保存缓存当前读下标
                     try {
-                        msg = codec.decode(channel, message);
+                        msg = codec.decode(channel, message);       // 解析二进制数据为对象
                     } catch (IOException e) {
                         buffer = com.alibaba.dubbo.remoting.buffer.ChannelBuffers.EMPTY_BUFFER;
                         throw e;
                     }
-                    if (msg == Codec2.DecodeResult.NEED_MORE_INPUT) {
-                        message.readerIndex(saveReaderIndex);
+                    if (msg == Codec2.DecodeResult.NEED_MORE_INPUT) {       // 返回NEED_MORE_INPUT说明遇到了半包
+                        message.readerIndex(saveReaderIndex);               // 重置读取下标
                         break;
                     } else {
                         if (saveReaderIndex == message.readerIndex()) {
                             buffer = com.alibaba.dubbo.remoting.buffer.ChannelBuffers.EMPTY_BUFFER;
                             throw new IOException("Decode without read data.");
                         }
-                        if (msg != null) {
+                        // 解析到了一个完整的dubbo协议帧
+                        if (msg != null) {      // 将解码成功的msg传给下一个Handler
                             Channels.fireMessageReceived(ctx, msg, event.getRemoteAddress());
                         }
                     }
                 } while (message.readable());
             } finally {
                 if (message.readable()) {
-                    message.discardReadBytes();
+                    message.discardReadBytes();     // 将读取过的丢弃
                     buffer = message;
                 } else {
                     buffer = com.alibaba.dubbo.remoting.buffer.ChannelBuffers.EMPTY_BUFFER;

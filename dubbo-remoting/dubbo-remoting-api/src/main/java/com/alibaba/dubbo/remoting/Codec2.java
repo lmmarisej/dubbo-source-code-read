@@ -28,6 +28,11 @@ import java.io.IOException;
  * 如解决半包、 粘包等问题。
  *
  * 该接口属于在序列化上封装的一层。
+ *
+ * 半包
+ *  服务端从缓存接收了整个包一部分数据。
+ * 粘包
+ *  服务端从缓存接收到了多个包。
  */
 @SPI
 public interface Codec2 {

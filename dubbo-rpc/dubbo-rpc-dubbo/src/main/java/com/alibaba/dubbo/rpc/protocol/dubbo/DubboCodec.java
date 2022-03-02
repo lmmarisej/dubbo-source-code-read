@@ -68,18 +68,17 @@ public class DubboCodec extends ExchangeCodec implements Codec2 {
     @Override
     protected Object decodeBody(Channel channel, InputStream is, byte[] header) throws IOException {
         // 协议头第 3 个字节
-        byte flag = header[2],
-                proto = (byte) (flag & SERIALIZATION_MASK); // 获取序列化器编号
+        byte flag = header[2], proto = (byte) (flag & SERIALIZATION_MASK); // 获取序列化器编号
         // get request id.
-        long id = Bytes.bytes2long(header, 4);
-        if ((flag & FLAG_REQUEST) == 0) {
-            // decode response.
+        long id = Bytes.bytes2long(header, 4);      // 解析请求id
+        if ((flag & FLAG_REQUEST) == 0) {               // 解码响应
+            // decode response.   响应类型
             Response res = new Response(id);
             if ((flag & FLAG_EVENT) != 0) {
-                res.setEvent(Response.HEARTBEAT_EVENT);
+                res.setEvent(Response.HEARTBEAT_EVENT);     // 事件类型
             }
             // get status.
-            byte status = header[3];
+            byte status = header[3];            // 获取响应码
             res.setStatus(status);
             try {
                 if (status == Response.OK) {
@@ -87,6 +86,7 @@ public class DubboCodec extends ExchangeCodec implements Codec2 {
                     if (res.isHeartbeat()) {
                         byte[] eventPayload = CodecSupport.getPayload(is);
                         data = decodeHeartbeatData(channel,
+                                // 使用与消费端一致的反序列化类型对数据部分进行解码
                                 CodecSupport.deserialize(channel.getUrl(), new ByteArrayInputStream(eventPayload), proto), eventPayload);
                     } else if (res.isEvent()) {
                         byte[] eventPayload = CodecSupport.getPayload(is);
@@ -120,7 +120,7 @@ public class DubboCodec extends ExchangeCodec implements Codec2 {
             }
             return res;
         } else {
-            // decode request.
+            // decode request.    请求类型
             Request req = new Request(id);
             req.setVersion(Version.getProtocolVersion());
             req.setTwoWay((flag & FLAG_TWOWAY) != 0);
@@ -129,24 +129,22 @@ public class DubboCodec extends ExchangeCodec implements Codec2 {
             }
             try {
                 Object data;
-                if (req.isHeartbeat()) {
+                if (req.isHeartbeat()) {            // 心跳数据
                     byte[] eventPayload = CodecSupport.getPayload(is);
                     data = decodeHeartbeatData(channel,
+                            // 使用与消费端序列化一致的反序列化类型对数据部分进行解码
                             CodecSupport.deserialize(channel.getUrl(), new ByteArrayInputStream(eventPayload), proto), eventPayload);
-                } else if (req.isEvent()) {
+                } else if (req.isEvent()) {         // 事件
                     byte[] eventPayload = CodecSupport.getPayload(is);
                     data = decodeEventData(channel,
                             CodecSupport.deserialize(channel.getUrl(), new ByteArrayInputStream(eventPayload), proto), eventPayload);
-                } else {
+                } else {            // 请求数据
                     DecodeableRpcInvocation inv;
-                    if (channel.getUrl().getParameter(
-                            Constants.DECODE_IN_IO_THREAD_KEY,
-                            Constants.DEFAULT_DECODE_IN_IO_THREAD)) {
+                    if (channel.getUrl().getParameter(Constants.DECODE_IN_IO_THREAD_KEY, Constants.DEFAULT_DECODE_IN_IO_THREAD)) {
                         inv = new DecodeableRpcInvocation(channel, req, is, proto);
                         inv.decode();
                     } else {
-                        inv = new DecodeableRpcInvocation(channel, req,
-                                new UnsafeByteArrayInputStream(readMessageData(is)), proto);
+                        inv = new DecodeableRpcInvocation(channel, req, new UnsafeByteArrayInputStream(readMessageData(is)), proto);
                     }
                     data = inv;
                 }
