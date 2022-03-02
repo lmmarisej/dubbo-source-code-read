@@ -48,9 +48,7 @@ public final class StringUtils {
     }
 
     public static boolean isBlank(String str) {
-        if (str == null || str.length() == 0)
-            return true;
-        return false;
+        return str == null || str.length() == 0;
     }
 
     /**
@@ -60,9 +58,7 @@ public final class StringUtils {
      * @return is empty.
      */
     public static boolean isEmpty(String str) {
-        if (str == null || str.length() == 0)
-            return true;
-        return false;
+        return str == null || str.length() == 0;
     }
 
     /**

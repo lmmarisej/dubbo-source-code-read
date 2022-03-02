@@ -479,7 +479,7 @@ public class PojoUtils {
                                 filed.setAccessible(true);
                             }
                             filed.set(dest, message);
-                        } catch (Exception e) {
+                        } catch (Exception ignored) {
                         }
                     }
                 }

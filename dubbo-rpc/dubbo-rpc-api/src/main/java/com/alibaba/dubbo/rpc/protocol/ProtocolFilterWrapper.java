@@ -55,7 +55,7 @@ public class ProtocolFilterWrapper implements Protocol {
         List<Filter> filters = ExtensionLoader.getExtensionLoader(Filter.class).getActivateExtension(invoker.getUrl(), key, group);
         if (!filters.isEmpty()) {
             // 倒序遍历，构建拦截器链，将服务对象放入拦截器链尾
-            for (int i = filters.size() - 1; i >= 0; i--) {
+            for (int i = filters.size() - 1; i >= 0; i--) {         // 倒序封装，保证过滤器按照FIFO顺序依次调用
                 final Filter filter = filters.get(i);
                 final Invoker<T> next = last;
                 // 使用装饰器模式，增强原有 Invoker, 组装过滤器链
@@ -94,7 +94,7 @@ public class ProtocolFilterWrapper implements Protocol {
                 };
             }
         }
-        return last;
+        return last;            // 暴露第一个过滤器
     }
 
     @Override

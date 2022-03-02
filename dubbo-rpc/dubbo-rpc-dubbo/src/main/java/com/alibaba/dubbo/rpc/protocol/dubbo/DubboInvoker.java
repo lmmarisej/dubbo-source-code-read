@@ -39,6 +39,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * DubboInvoker
+ *
+ * 发起远程调用。
  */
 public class DubboInvoker<T> extends AbstractInvoker<T> {
 

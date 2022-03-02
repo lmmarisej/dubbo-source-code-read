@@ -31,28 +31,28 @@ import com.alibaba.dubbo.samples.generic.api.HiService;
 
 public class APIGenericConsumer {
     public static void main(String[] args) {
-ApplicationConfig application = new ApplicationConfig();
-application.setName("api-generic-consumer");
+        ApplicationConfig application = new ApplicationConfig();
+        application.setName("api-generic-consumer");
 
-RegistryConfig registry = new RegistryConfig();
-registry.setAddress("zookeeper://127.0.0.1:2181");
+        RegistryConfig registry = new RegistryConfig();
+        registry.setAddress("zookeeper://127.0.0.1:2181");
 
-application.setRegistry(registry);
+        application.setRegistry(registry);
 
-ReferenceConfig<GenericService> reference = new ReferenceConfig<GenericService>();
-// 弱类型接口名
-reference.setInterface(HiService.class);
-reference.setApplication(application);
+        ReferenceConfig<GenericService> reference = new ReferenceConfig<GenericService>();
+        // 弱类型接口名
+        reference.setInterface(HiService.class);
+        reference.setApplication(application);
 
-HiService hiService = (HiService) reference.get();
-System.out.println(hiService.hi("dubbo"));
+        HiService hiService = (HiService) reference.get();
+        System.out.println(hiService.hi("dubbo"));
 
-ReferenceConfig<GenericService> reference2 = new ReferenceConfig<GenericService>();
-// 弱类型接口名
-reference2.setInterface(HelloService.class);
-reference2.setApplication(application);
+        ReferenceConfig<GenericService> reference2 = new ReferenceConfig<GenericService>();
+        // 弱类型接口名
+        reference2.setInterface(HelloService.class);
+        reference2.setApplication(application);
 
-HelloService helloService = (HelloService) reference2.get();
-System.out.println(helloService.hello("community"));
+        HelloService helloService = (HelloService) reference2.get();
+        System.out.println(helloService.hello("community"));
     }
 }

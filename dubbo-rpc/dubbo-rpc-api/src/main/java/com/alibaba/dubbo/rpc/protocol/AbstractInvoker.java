@@ -57,7 +57,7 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
 
     private volatile boolean available = true;
 
-    private AtomicBoolean destroyed = new AtomicBoolean(false);
+    private final AtomicBoolean destroyed = new AtomicBoolean(false);
 
     public AbstractInvoker(Class<T> type, URL url) {
         this(type, url, (Map<String, String>) null);

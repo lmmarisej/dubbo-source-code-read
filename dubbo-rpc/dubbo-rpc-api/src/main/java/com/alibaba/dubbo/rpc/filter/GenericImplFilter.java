@@ -41,6 +41,8 @@ import java.lang.reflect.Method;
 
 /**
  * GenericImplInvokerFilter
+ *
+ * 拦截泛化调用，把泛化参数进行校验并发起远程调用。
  */
 @Activate(group = Constants.CONSUMER, value = Constants.GENERIC_KEY, order = 20000)
 public class GenericImplFilter implements Filter {
@@ -49,16 +51,17 @@ public class GenericImplFilter implements Filter {
 
     private static final Class<?>[] GENERIC_PARAMETER_TYPES = new Class<?>[]{String.class, String[].class, Object[].class};
 
+    // 请求处理完成后，会把请求传递给被包装为DubboInvoker
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         String generic = invoker.getUrl().getParameter(Constants.GENERIC_KEY);
-        if (ProtocolUtils.isGeneric(generic)
+        if (ProtocolUtils.isGeneric(generic)        // 判断是否泛化调用
                 && !Constants.$INVOKE.equals(invocation.getMethodName())
                 && invocation instanceof RpcInvocation) {
             RpcInvocation invocation2 = (RpcInvocation) invocation;
             String methodName = invocation2.getMethodName();
             Class<?>[] parameterTypes = invocation2.getParameterTypes();
-            Object[] arguments = invocation2.getArguments();
+            Object[] arguments = invocation2.getArguments();        // 获取泛化参数
 
             String[] types = new String[parameterTypes.length];
             for (int i = 0; i < parameterTypes.length; i++) {
@@ -66,13 +69,13 @@ public class GenericImplFilter implements Filter {
             }
 
             Object[] args;
-            if (ProtocolUtils.isBeanGenericSerialization(generic)) {
+            if (ProtocolUtils.isBeanGenericSerialization(generic)) {        // bean模式
                 args = new Object[arguments.length];
                 for (int i = 0; i < arguments.length; i++) {
                     args[i] = JavaBeanSerializeUtil.serialize(arguments[i], JavaBeanAccessor.METHOD);
                 }
             } else {
-                args = PojoUtils.generalize(arguments);
+                args = PojoUtils.generalize(arguments);        // nativejava模式
             }
 
             invocation2.setMethodName(Constants.$INVOKE);
@@ -90,13 +93,8 @@ public class GenericImplFilter implements Filter {
                         } else if (value instanceof JavaBeanDescriptor) {
                             return new RpcResult(JavaBeanSerializeUtil.deserialize((JavaBeanDescriptor) value));
                         } else {
-                            throw new RpcException(
-                                    "The type of result value is " +
-                                            value.getClass().getName() +
-                                            " other than " +
-                                            JavaBeanDescriptor.class.getName() +
-                                            ", and the result is " +
-                                            value);
+                            throw new RpcException("The type of result value is " + value.getClass().getName() + " other than " +
+                                    JavaBeanDescriptor.class.getName() + ", and the result is " + value);
                         }
                     } else {
                         return new RpcResult(PojoUtils.realize(value, method.getReturnType(), method.getGenericReturnType()));
@@ -135,7 +133,7 @@ public class GenericImplFilter implements Filter {
                             logger.warn(e.getMessage(), e);
                         }
                         result = new RpcResult(targetException);
-                    } else if (lastException != null) {
+                    } else {
                         throw lastException;
                     }
                 } catch (Throwable e) {
@@ -166,20 +164,15 @@ public class GenericImplFilter implements Filter {
                 }
             }
 
-            ((RpcInvocation) invocation).setAttachment(
-                    Constants.GENERIC_KEY, invoker.getUrl().getParameter(Constants.GENERIC_KEY));
+            // 设置泛化调用方式，给服务端使用
+            ((RpcInvocation) invocation).setAttachment(Constants.GENERIC_KEY, invoker.getUrl().getParameter(Constants.GENERIC_KEY));
         }
         return invoker.invoke(invocation);
     }
 
     private void error(String generic, String expected, String actual) throws RpcException {
-        throw new RpcException(
-                "Generic serialization [" +
-                        generic +
-                        "] only support message type " +
-                        expected +
-                        " and your message type is " +
-                        actual);
+        throw new RpcException("Generic serialization [" + generic + "] only support message type " + expected +
+                " and your message type is " + actual);
     }
 
 }

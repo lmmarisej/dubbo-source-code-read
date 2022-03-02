@@ -27,6 +27,8 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * InvokerWrapper
+ *
+ * 进行本地服务的执行。
  */
 public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
 
