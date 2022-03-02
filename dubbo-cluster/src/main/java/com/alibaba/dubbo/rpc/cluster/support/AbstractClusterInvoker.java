@@ -229,10 +229,10 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
         checkWhetherDestroyed();
         LoadBalance loadbalance = null;
 
-        // binding attachments into invocation.
+        // binding attachments into invocation.    获得附加属性键值对
         Map<String, String> contextAttachments = RpcContext.getContext().getAttachments();
         if (contextAttachments != null && contextAttachments.size() != 0) {
-            ((RpcInvocation) invocation).addAttachments(contextAttachments);
+            ((RpcInvocation) invocation).addAttachments(contextAttachments);        // 放入RpcInvocation，通过网络传给服务端
         }
 
         List<Invoker<T>> invokers = list(invocation);

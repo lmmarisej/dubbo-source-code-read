@@ -33,14 +33,14 @@ import java.util.Map;
 /**
  * ContextInvokerFilter
  *
- * 记录每个请求的调用上下文 。
+ * 服务提供方。记录每个请求的调用上下文，从请求中提取attachments键值对。
  */
 @Activate(group = Constants.PROVIDER, order = -10000)
 public class ContextFilter implements Filter {
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        Map<String, String> attachments = invocation.getAttachments();
+        Map<String, String> attachments = invocation.getAttachments();      // 获取附加属性
         if (attachments != null) {
             attachments = new HashMap<String, String>(attachments);
             // 清除异步属性 。 防止异步属性传到过滤器链的下一个环节 。
