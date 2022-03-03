@@ -25,8 +25,6 @@ import java.lang.annotation.Target;
 
 /**
  * Service
- *
- * @export
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

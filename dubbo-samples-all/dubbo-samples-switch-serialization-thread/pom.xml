@@ -11,4 +11,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>dubbo-samples-switch-serialization-thread</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo-rpc-api</artifactId>
+            <version>2.6.13-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>

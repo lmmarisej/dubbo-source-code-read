@@ -11,5 +11,12 @@
 
     <artifactId>dubbo-samples-zookeeper</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo-config-api</artifactId>
+            <version>2.6.13-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>
